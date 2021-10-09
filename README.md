@@ -1,5 +1,5 @@
 # CoreJavascript 스터디
-https://user-images.githubusercontent.com/76730867/136645376-0734e6da-bf01-462d-996e-556f9fd4dabf.png
+![1](https://user-images.githubusercontent.com/76730867/136645376-0734e6da-bf01-462d-996e-556f9fd4dabf.png)
 
 ### 목표
 - 자바스크립트 핵심 구동 원리 파악하기
