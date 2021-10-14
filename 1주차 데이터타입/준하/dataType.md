@@ -149,6 +149,7 @@ var copyObectDeep = function(target) {
 }
 var object2 = copyObjectDeep(object1)
 ```
+---
 --> 10번, 배열의 요소도 각각 실행됨.
 
 (1) object1
