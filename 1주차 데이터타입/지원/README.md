@@ -230,3 +230,16 @@ console.log(typeof n) //object
 console.log(n == undefined) // true
 console.log(n === undefined) //false
 ```
+
+---
+퀴즈
+```
+var person = {
+    name:'jiwon",
+    like: {food: "pasta"}
+}
+var copyPerson = {...person}
+console.log(person === copyPerson}
+console.log(person.like === copyPerson.like)
+console.log(person.like.food === copyPerson.like.food)
+```
