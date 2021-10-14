@@ -150,6 +150,7 @@ var copyObectDeep = function(target) {
 var object2 = copyObjectDeep(object1)
 ```
 --> 10번, 배열의 요소도 각각 실행됨.
+
 (1) object1
 (2) ['b','c',['d','e',['f','g']]]
 (3) 'b' -> (2)의 prop은 배열의 인데스이기 때문에, target[0]='b'가 됌
