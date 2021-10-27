@@ -133,7 +133,46 @@ obj1.a=2
 2) 
 
 **퀴즈**
-1) 얕은 복사란?
-2) 중첩 객체의 깊은 복사 함수를 작성한다면?
-3) ``` var object1 ={a:[a,b,[c,d,[e,f]]]}```  를 복사하려면 재귀함수가 몇 번필요할까?
-4) 객체 내부 프로퍼티가 바뀌는 것도 결국, 변수 데이터 영역이 바뀌는 건데 불변성이라고 할 수 있을까?
+
+ ``` var object1 = {'a':['b','c',['d','e',['f','g']]]}```  를 복사하려면 재귀함수가 몇 번필요할까? 
+
+```
+var copyObectDeep = function(target) {
+    var result = {}
+    if (typeof target === 'object' && target !== null){
+        for(var prop in target){
+            result[prop] = copyObectDeep(target[prop])       
+         }   
+    }else{
+        result = target
+    }
+    return result
+}
+var object2 = copyObjectDeep(object1)
+```
+---
+--> 10번, 배열의 요소도 각각 실행됨.
+
+(1) object1
+
+(2) ['b','c',['d','e',['f','g']]]
+
+(3) 'b' -> (2)의 prop은 배열의 인데스이기 때문에, target[0]='b'가 됌
+
+(4) 'c'
+
+(5) ['d','e',['f','g']]
+
+(6) 'd'
+
+(7) 'e'
+
+(8) ['f','g']
+
+(9) 'f'
+
+(10) 'g'
+
+
+![image](https://user-images.githubusercontent.com/76730867/137319809-0f2fb0a3-ceec-4c69-9fa0-11cee3b14ea9.png)
+
