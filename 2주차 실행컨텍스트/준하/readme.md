@@ -350,4 +350,67 @@ console.log(c)
 ####OuterEnvironmentReferecne
 
 - 스코프란 식별자에 대한 유효범위이다. 
-- 
+- 어떤 경계 A의 외부에서 선언한 변수는 A의 외부뿐 아니라 A의 내부에서도 접근이 가능 하다. 하지만 A의 내부에서 선언한 변수는 오직 A의 내부에서만 접근할 수 있다.
+- **스코프 체인: 식별자의 유효범위를 안에서부터 바깥으로 차례로 검색해나가는 것**
+- 이를 가능하게 하는 것이 LexicalEnvironment의 두 번째 수집자료인 outerEnvironmentReference
+
+####스코프체인
+- outerEnvironmentReference는 현재 호출된 함수가 선언될 당시의 LexicalEnvironment를 참조합니다. 
+  **예시**
+- A 함수 내부에 B함수를 선언하고, B함수 내부에 C함수를 선언할 경우,
+- 함수 C의 outerEnvironmnetReference는 함수 B의 LexicalEnvironment를 참조한다. 
+- 함수B의 LexicalEnvironment에 있는 outerEnvironment는 다시 함수 B가 선언되던 때(A)의 LexicalEnvironment를 참조한다. 
+- 이처럼 outerEnvironmentReference는 연결리스트 형태를 띤다.
+- 선언 시점의 LexicalEnvironment를 계속 찾아 올라가면 마지막엔 전역 컨텍스트의 LexicalEnvironment가 있다. 또한 각 outerEnvironment는 오직 자신이 선언된 시점의 LexicalEnvironment만 참조하고 있으므로 가장 가까운 요소부터 차례대로 접근할 수 있고 다른 순서로 접근하는 것은 불가능하다. 이런 구조적 특성 덕분에 여러 스코프에서 동일한 식별자를 선언한 경우에는 무조건 스코프 체인 상에서 가장 먼저 발견된 식별자에만 접근이 가능하다.
+<br>
+
+**예시 코드**
+```js
+var a = 1
+var outer = function() {
+    var inner = function() {
+        console.log(a)
+        var a = 3
+    }
+    inner()
+    console.log(a)
+}
+outer()
+console.log(a)
+```
+
+<img width="600" alt="1" src="https://user-images.githubusercontent.com/76730867/140011793-061ab95f-1947-4338-925d-0af132660898.jpg">
+
+- L.E = LexcialEnvironment  
+  현재 컨텍스트 내부에는 a,b,c와 같은 식별자들이 있고 그 외부 정보는 D를 참조하도록 구성돼 있다
+- e = environmnetRecord
+  - 현재 컨텍스트와 관련된 코드의 식별자 정보들이 저정된다.
+- o = outerEnvironmentReference
+  -  **스코프 체인: 식별자의 유효범위를 안에서부터 바깥으로 차례로 검색해나가는 것**
+<br>
+
+- 위의 표를 왼쪽에서 오른쪽으로 바라보면 '전역 컨텍스트 -> outer 컨텍스트 -> inner 컨텍스트' 순으로 점차 규모가 작아진다.
+- 반면, 스코프 체인을 타고 접근 가능한 변수의 수는 늘어난다.
+- 전역 공간에서는 전역 스코프에서 생성된 변수에만 접근할 수 있다. 
+- outer 함수 내부에서는 outer 및 전역 스코프에서 생성된 변수에 접근할 수 있지만 inner 스코프 내부에서 생성된 변수에는 접근하지 못한다. 
+- inner 함수 내부에서는 inner,outer,전역 스코프 모두에 접근할 수 있다.
+
+**변수은닉화**(variable shadowing)
+- 스코프 체인 상에 있는 변수라해서 모조건 접근 가능한 건 아님
+- 코드 상의 식별자 a는 전역 공간에서도 선언했고, inner 함수 내부에서도 선언
+- inner 함수 내부에서 a에 접근하려고 하면 무조건 스코프 체인 상의 첫번째 인자, inner 스코프의 lexicalEnvironment부터 검색하게 된다.
+- inner 스코프의 LE에 a식별자가 존재하므로 스코프 체인 검색을 더이상 진행하지 않고 inner LE상의 a를 반환하게 된다. 
+- inner 함수 내부에서는 a변수를 선언했기 때문에 전역 공간에서 선언한 동일 이름의 a변수에는 접근할 수 없는 셈이다. 
+  
+##정리
+-실행 컨텍스트는 실행할 코드에 제공할 환경 정보들을 모아놓은 객체다. 
+- 실행 컨텍스트는 전역 공간에서 자동으로 생성되는 전역 컨텍스트와 eval 및 함수 실행에 의한 컨텍스트 등이 있다. 실행 컨텍스트 객체는 활성화되는 시점에 VariableEnvironment, LexicalEnvironment, ThisBinding의 세 가지 정보를 수집한다. 
+- 실행 컨텍스트를 생성할 때는 VariableEnvironment와 LexicalEnvironment가 동일한 내용으로 구성되지마 LexicalEnvironment는 함수 실행 동중에 변경되는 사항이 즉시 반영되는 반면 VariableEnvironmnet는 초기 상태를 유지한다. 
+- VariableEnvironment와 LexicalEnvironment는 매개변수명, 변수의 식별자, 선언한 함수명 등을 수집하는 EnvironmentRecord와 바로 직전 컨텍스트의 outerLexicalEnvironemnt로 구성돼 있다.
+- 호이스팅은 코드 해석을 좀 더 수월하게 하기 위해 environmentRecord의 수집 과정을 추상화한 개념으로, 실행 컨텍스트가 관여하는 코드 집단의 최상단으로 이들을 끌어올린다고 해석한다.
+- 변수 선언과 값 할당이 동시에 이뤄진 문장은 '선언부'만을 호이스팅하고, 할당 과정은 원래 자리에 있다. 여기서 함수 선언문과 함수 표현식의 차이가 발생한다.
+- 스코프는 변수의 유효범위를 말한다. outerEnvironmentReference는 해당 함수가 선언된 위치의 LexicalEnvironment를 참조한다. 코드 상에는 어떤 변수에 접근하려고 하면 현재 컨텍스트의 LexicalEnvironment를 탐색해서 발견되면 그 값을 반환하고, 발견하지 못할 경우 다시 outerEnvironmentRefrence에 담긴 LexicalEnvironmen를 탐색하는 과정을 거친다. 전역 컨텍스트의 LexicalEnvironment까지 해당 변수를 찾지 못하면 undefined를 반환한다.
+
+
+- 전역 컨텍스트의 LexicalEnvironmnet에 담긴 변수를 전역변수, 그밖에 함수에 의해 생성된 실행 컨텍스트의 변수들은 모두 지역변수이다. 안전한 코드 구성을 위해 전역변수는 가급적 사용을 최소화해야한다.
+- this에는 실행 컨텍스트를 활성화하는 당시에 지정된 this가 저장된다. 함수를 호출하는 방법에 따라 그 값이 달라지는데, 지정되지 않은 경우 전역객체가 저장된다.
