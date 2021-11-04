@@ -10,7 +10,7 @@
 ---
 ## 1. 실행 컨텍스트란?
 - execution context
-- 실행할 코드에 제공할 **'환경 정보들을 모아놓은 객체'**를 뜻한다.
+- 실행할 코드에 제공할 **환경 정보들을 모아놓은 객체**를 뜻한다.
 
 **동작 과정**
   -  동일한 환경에 있는 코드들을 실행할 때
@@ -54,19 +54,19 @@ outer()
 - ![image](https://user-images.githubusercontent.com/76730867/138984917-3254cfa4-cded-4ddc-b56d-cf4e7e99d1f1.png)
 
 **VariableEnvironment**
-- 현재 컨텍스트 내의 식별자들에 대한 정보 + 외부 한경 정보
+- 현재 컨텍스트 내의 식별자들에 대한 정보 **+ 외부 한경 정보**
 - 선언 시점의 LexicalEnvironment의 스냅샷으로, 변경 사항은 반영되지 않음
 - 담기는 내용은 Lexical과 같지만 최초 실행 시의 스냅샷을 유지한다는 점
 실행 컨텍스트를 생성할 때 여기에 정보를 먼저 담은 다음, 이를 그대로 복사해서 Lexical-을 만들어 이후는 주로 Lexical-을 활용한다.
 
 **LexicalEnvironment**
-- 처음에는 VariableEnvironment와 같지만 변경사항이 실시간으로 반영됨.
+- 처음에는 VariableEnvironment와 같지만 **변경사항이 실시간으로 반영**됨.
 - 사전적인 뜻을 내포: `현재 컨텍스트 내부에는 a,b,c와 같은 식별자들이 있고 그 외부 정보는 D를 참조하도록 구성돼 있다`라는 컨텍스트를 구성하는 환경 정보들을 사전에서 접하는 느낌으로 모아놓은 것이다.
 
-**EnvironmentRecord**
-- 현재 컨텍스트와 관련된 코드의 식별자 정보들이 저정된다.
-- 식별자는 함수에 지정된 매개변수, 함수 자체, 함수 안에 선언된 변수의 식별자 등을 말한다.
-- 컨텍스트 내부 전체를 처음부터 끝까지 쭉 훑어나가며 순서대로 수집한다. 
+    **EnvironmentRecord**
+    - **현재 컨텍스트와 관련된 코드의 식별자 정보들이 저정된다.**
+    - 식별자는 함수에 지정된 매개변수, 함수 자체, 함수 안에 선언된 변수의 식별자 등을 말한다.
+    - 컨텍스트 내부 전체를 처음부터 끝까지 쭉 훑어나가며 순서대로 수집한다. 
 
 **참고**
 전역 실행 컨텍스트는 변수 객체를 생성하는 대신 자바스크립트 구동환경이 별도로 제공하는 객체, 전역 객체를 활용한다. 전역 객체에는 브라우저의 window, node.js의 global객체 등이 있다. 이들은 자바스크립트 내장 객체가 아닌 호스트 객체로 분류된다.
@@ -312,7 +312,7 @@ console.log(c)
 
 - 전역 컨텍스트가 활성화 될 때 전역공간에 선언된 함수들이 모두 가장 위로 끌어올려진다. 
 - 동일한 변수명에 서로 다른 값을 할당할 경우 나중에 할당한 값이 먼저 할당한 값을 오버라이드한다. 
-- 코드를 실행할 때 실제로 호풀되는 함수는 마지막에 선언된 함수이다. 
+- 코드를 실행할 때 실제로 호출되는 함수는 마지막에 선언된 함수이다. 
 - 숫자를 더하는 함수는 없어지고, 문자열만 반환하는 함수가 작동한다.
 - 함수가 바뀌어 여기저기 문제가 발생하고 있는데, 정작 이 함수는 그 어떤 오류도 내지 않고, 암묵적 형변환에 따라 오류 없이 통과된다. 
 - 디버깅은 끔직할 것이다.
@@ -339,7 +339,7 @@ var c = sum(1,2)
 console.log(c)
 ```
 
-1) 100번째 줄 보다 이전 줄에 sum함수를 호출하는 코드는 바로 검출되어 디버깅
+1) sum함수가 할당 되기 전에 sum함수를 호출하는 코드는 바로 검출되어 디버깅할 수 있다.
 2) A는 A의도대로 sum함수 작동
 3) B는 B의도대로 sum함수 작동
    -> 상대적으로 함수 표현식이 안전하다.
@@ -349,7 +349,7 @@ console.log(c)
 ####스코프 체인
 ####OuterEnvironmentReferecne
 
-- 스코프란 식별자에 대한 유효범위이다. 
+- 스코프란 **식별자에 대한 유효범위**이다. 
 - 어떤 경계 A의 외부에서 선언한 변수는 A의 외부뿐 아니라 A의 내부에서도 접근이 가능 하다. 하지만 A의 내부에서 선언한 변수는 오직 A의 내부에서만 접근할 수 있다.
 - **스코프 체인: 식별자의 유효범위를 안에서부터 바깥으로 차례로 검색해나가는 것**
 - 이를 가능하게 하는 것이 LexicalEnvironment의 두 번째 수집자료인 outerEnvironmentReference
@@ -405,8 +405,9 @@ console.log(a)
 ##정리
 -실행 컨텍스트는 실행할 코드에 제공할 환경 정보들을 모아놓은 객체다. 
 - 실행 컨텍스트는 전역 공간에서 자동으로 생성되는 전역 컨텍스트와 eval 및 함수 실행에 의한 컨텍스트 등이 있다. 실행 컨텍스트 객체는 활성화되는 시점에 VariableEnvironment, LexicalEnvironment, ThisBinding의 세 가지 정보를 수집한다. 
-- 실행 컨텍스트를 생성할 때는 VariableEnvironment와 LexicalEnvironment가 동일한 내용으로 구성되지마 LexicalEnvironment는 함수 실행 동중에 변경되는 사항이 즉시 반영되는 반면 VariableEnvironmnet는 초기 상태를 유지한다. 
-- VariableEnvironment와 LexicalEnvironment는 매개변수명, 변수의 식별자, 선언한 함수명 등을 수집하는 EnvironmentRecord와 바로 직전 컨텍스트의 outerLexicalEnvironemnt로 구성돼 있다.
+- 실행 컨텍스트를 생성할 때는 VariableEnvironment와 LexicalEnvironment가 동일한 내용으로 구성되지만, LexicalEnvironment는 함수 실행 동중에 변경되는 사항이 즉시 반영되는 반면 VariableEnvironmnet는 초기 상태를 유지한다. 
+- VariableEnvironment와 LexicalEnvironment는 매개변수명, 변수의 식별자, 선언한 함수명 등을 수집하는 EnvironmentRecord와 바로 직전 컨텍스트의 outerEnvironemntReference로 구성돼 있다.
+- 
 - 호이스팅은 코드 해석을 좀 더 수월하게 하기 위해 environmentRecord의 수집 과정을 추상화한 개념으로, 실행 컨텍스트가 관여하는 코드 집단의 최상단으로 이들을 끌어올린다고 해석한다.
 - 변수 선언과 값 할당이 동시에 이뤄진 문장은 '선언부'만을 호이스팅하고, 할당 과정은 원래 자리에 있다. 여기서 함수 선언문과 함수 표현식의 차이가 발생한다.
 - 스코프는 변수의 유효범위를 말한다. outerEnvironmentReference는 해당 함수가 선언된 위치의 LexicalEnvironment를 참조한다. 코드 상에는 어떤 변수에 접근하려고 하면 현재 컨텍스트의 LexicalEnvironment를 탐색해서 발견되면 그 값을 반환하고, 발견하지 못할 경우 다시 outerEnvironmentRefrence에 담긴 LexicalEnvironmen를 탐색하는 과정을 거친다. 전역 컨텍스트의 LexicalEnvironment까지 해당 변수를 찾지 못하면 undefined를 반환한다.
