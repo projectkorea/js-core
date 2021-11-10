@@ -58,3 +58,39 @@ console.log(window);
 //
 console.log('-------------------------------------');
 console.dir(Object.prototype);
+
+//
+console.log('-------------------------------------');
+
+var obj = {
+  0: 'a',
+  1: 'b',
+  2: 'c',
+  length: 3,
+};
+// length가 없으면 0에 push가 되네?
+Array.prototype.push.call(obj, 'd');
+console.log(obj);
+
+//
+console.log('-------------------------------------');
+function a() {
+  var argv = Array.prototype.slice.call(arguments);
+  argv.forEach(function (arg) {
+    console.log(arg);
+  });
+}
+a(1, 2, 3);
+
+//
+console.log('-------------------------------------');
+var obj = {
+  outer: function () {
+    console.log(this);
+    var innerFunc = () => {
+      console.log(this);
+    };
+    innerFunc();
+  },
+};
+obj.outer();
