@@ -57,13 +57,21 @@ console.log(newArr)
 - 콜백 함수도 함수이기 때문에 this가 전역객체를 참조한다.
 - 하지만 제어권을 넘겨받을 코드에서 별도로 this가 될 대상을 지정할 경우 그 대상을 참조한다.
 
-**예시) this 별도 지정한 map메서드**
+**예시) this를 별도로 지정한 map메서드를 만든다면**
 ```js
 Array.prototype.map = function(callback, thisArg) {
     var mappedArr = []
-    for(var i =0; i<this.length; i++ >){
-        var mappedValue = callback.call
+    for(var i =0; i<this.length; i++ ){
+        var mappedValue = callback.call(thisArg || window, this[i], i, this)
+        // callback에 들어갈 인자에 call메서드가 붙어 처음엔 바인딩 객체가 오고 그다음은 callback 매개변수가 들어감
+        // thisArg || window: this 바인딩 대상 객체
+        // this[i]: currentCalue
+        // i: 인덱스
+        // this: array
+
+        mappedArr[i] = mappedValue
     }
+    return mappedArr
 }
 ```
 
