@@ -74,8 +74,160 @@ Array.prototype.map = function(callback, thisArg) {
     return mappedArr
 }
 ```
+**예시) 콜백 함수 내부에서의 this**
+```js
+setTimeout(function() {
+    console.log(this) // Window
+},300) 
+
+[1,2,3,4,5].forEach(function(x){
+    console.log(this) // Window
+})
+
+document.body.innerHTML += '<button id="a">클릭</button>'
+document.body.querySelector('#a')
+    .addEventListener('click', function(e) {
+        console.log(this,e) // <button>...</button>, MouseEvent
+})
+```
+- 1) setTimeout은 콜백함수를 호출할 때 call 메서드에 첫 번째 인자에 전역객체를 넘겨주기 때문에 this가 전역객체를 가리킨다. (위위 예시 참고)
+- 2) forEach는 별도의 인자로 this를 넘겨받지 않았기 때문에 전역객체를 가리킨다. 
+- 3) addEventListener는 콜백 함수를 호출할 때 call 메서드 첫 번째 인자에 메서드의 this를 그대로 넘기도록 정의돼있기 때문에, this가 addEventListener를 호출한 주체인 HTML엘리먼트를 가리키게 된다. 
+
+## 3. 콜백 함수는 함수다.
+- 콜백 함수로 객체의 메서드를 전달하더라도 그 메서드는 메서드가 아닌 **함수로서 호출**된다.
+
+```js
+var obj = {
+    vals:[1,2,3],
+    logValues: function(v,i){
+        console.log(this,v,i)
+    }
+}
+obj.logValues(1,2)             // 1) obj, 1, 2
+[4,5,6].forEach(obj.logValues) // 2) Window, 4, 0 ...
+```
+
+- 1) obj객체의 logValues는 메서드로 호출되어 this는 obj를 가리킨다.
+- 2) logValues는 forEach의 콜백 함수로서 호출되고, 별도의 this를 지정하는 인자를 지정하지 않았으므로 함수 내부에서의 this는 전역객체를 바라본다.
+- 정리: 함수의 인자에 객체의 메서드를 전달하더라도 결국 함수일 뿐이다.
+
+## 4. 콜백함수 내부의 this에 다른 값 바인딩하기
+- 객체의 메서드를 콜백함수로 전달하면 해당 객체를 바라보지 않는다.
+- 그럼에도 불구하고 콜백함수 내부에서 this가 객체를 바라보게 하려면 어떻게 할까?
+
+**예시) 전통적인 방식: 콜백함수 내부의 this에 다른 값을 바인딩**
+```js
+var obj1 = {
+    name: 'obj1',
+    func: function() {
+        var self = this
+        return function() {
+            console.log(self.name)
+        }
+    }
+}
+var callback =  obj1.func()
+setTimeout(callback, 1000)
+```
+- 전반적으로 불필요한 코드가 너무 많아 이해하기 힘들다.
 
 
+**예시) 콜백함수 내부에서 this를 사용하지 않은 경우**
+```js
+var obj1 = {
+    name:'obj1',
+    func: function() {
+        console.log(obj1.name)
+    }
+}
+setTimeout(obj1.func,1000)
+```
+- 간결하지만 this를 사용하지 못하는 단점이 있다.
+- 이는 다른 객체에서의 재사용이 불가능하다는 뜻이다.
+
+**예시) func 함수 재활용**
+```js
+var obj2 = {
+    name: 'obj2',
+    func: obj1.func
+}
+var callback2 = obj2.func()
+setTimeout(callback2, 1500)
+
+var obj3 = {name: 'obj3'}
+var callback3 = obj1.func.call(obj3)
+setTimeout(callback3, 2000)
+```
+- this를 우회하여 다양한 상황에서 원하는 객체를 바라보는 콜백 함수를 만들 수 있는 방법이다.
+- 전통적인 방법은 명시적으로 obj1을 지정했기 때문에 다른 객체를 바라볼 수 없고, 이는 메모리 낭비를 야기한다.
+
+**예시) ES5 bind 메서드**
+```js
+var obj1 = {
+    name: 'obj1',
+    func: function(){
+        console.log(this.name)
+    }
+}
+setTimeout(obj1.func.bind(obj1),1000)
+
+var obj2 = {name:'obj2'}
+setTimeout(obj1.func.bind(obj2), 1500)
+```
+- 전통적인 방법을 보완한 bind 메서드 방법이다.
+- bind가 없었다면 함수 내부의 this는 전역객체를 참조한다.
+
+
+## 5. 콜백 지옥과 비동기 제어
+**콜백지옥란?**
+- 콜백 함수를 익명 함수로 전달하는 과정이 반복되어 코드의 들여쓰기 수준이 감당하기 힘들정도로 깊어지는 현상
+- 이벤트 처리나 서버 통신과 같이 비동기적인 작업을 수행할 때 자주 발생한다.
+- 코드 가독성이 심히 떨어지고, 수정하기에도 힘들다.
+
+**동기적인 코드**
+- 현재 실행중인 코드가 완료된 후에야 다음 코드를 실행하는 방식
+- CPU의 계산에 의해 즉시 처리가 가능한 대부분의 코드
+- 계산식이 복잡해서 CPU가 계산하는데 시간이 많이 필요한 경우의 코드
+
+**비동기적인 코드**
+- 현재 실행중인 코드의 완료 여부와 무관하게 즉시 다음 코드로 넘어간다. 
+- **setTimeout:**사용자의 요청에 의해 특정 시간이 경과되기 전까지 어떤 함수의 실행을 보류한다거나
+- **addEventListener:**사용자의 직접적인 개입이 있을 때 함수를 실행하도록 대기한다거나
+- **XMLHttpRequest:**별도의 대상에 무언가를 요청하고 그에 대한 응답이 왔을 때 함수를 실행하도록 대기하는 등
+- **별도의 요청, 실행 대기, 보류** 등과 관련된 코드
+
+**예시1) 콜백지옥**
+```js
+setTimeout(function(name){
+    var coffeeList = name
+    console.log(coffeeList)
+
+    setTimeout(function(name){
+        coffeeList += ',' + name
+        console.log(coffeeList)
+
+        setTimeout(function(name){
+            coffeeList += ',' + name
+            console.log(coffeeList)
+
+            setTimeout(function(name){
+                coffeeList += ',' + name
+                console.log(coffeeList)
+            }, 500, '카페라떼)
+        }, 500, '카페모카')
+    }, 500, '아메리카노')
+}, 500, '에스프레소')
+```
+**문제점**
+- 깊이가 깊음
+- 값이 전달되는 순서가 아래에서 위로 향함
+
+
+**예시2) 익명의 콜백 함수를 모두 기명으로 바꾸기**
+```js
+
+```
 
 
 
