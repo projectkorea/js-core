@@ -226,13 +226,153 @@ setTimeout(function(name){
 
 **예시2) 익명의 콜백 함수를 모두 기명으로 바꾸기**
 ```js
+var coffeeList = ''
 
+var addEspresso = function (name){
+    coffeeList = name
+    console.log(coffeeList)
+    setTimeout(addAmericano, 500, '아메리카노')
+}
+
+var addAmericano = function (name){
+    coffeeList += ',' + name
+    console.log(coffeeList)
+    setTimeout(addMocha, 500, '카페모카')
+}
+
+var addMocha = function (name){
+    coffeeList += ',' + name
+    console.log(coffeeList)
+    setTimeout(addLatte, 500, '카페라떼')
+}
+
+var addAmericano = function (name){
+    coffeeList += ',' + name
+    console.log(coffeeList)
+}
+
+setTimeout(addEspresso, 500, '에스프레소)
 ```
 
+**예시3) Promise: 비동기 작업의 동기적 표현**
+```js
+//Promise 매개변수에 콜백함수, 파라미터 2개
+new Promise(function(resolve){
+    setTimeout(function() {
+        var name = '에스프레소'
+        console.log(name)
+        resolve(name)
+    }, 500)
+}).then(function(prevName){ //prevName is resolve에 있는 (name)
+    return newPromise(function(resolve){
+        setTimeout(function(){
+            var name = prevName + ', 아메리카노'
+            console.log(name)
+            resolve(name) // onfull시 then의 파라메터로 넘어감
+        },500)
+    })
+}).then(function(prevName){
+    return new Promise(function(resolve){
+        setTimeout(function() {
+            var name = prevName + ', 카페모카'
+            console.log(name)
+            resolve(name)
+        }, 500)
+    })
+}) .then(function(prevName){
+    return new Promise(function(resolve){
+        setTimeout(function(){
+            var name = prevName + ', 카페라떼'
+            console.log(name)
+            resolve(name)
+        })
+    })
+})
+```
+**예시4) Promise2: 비동기 작업의 동기적 표현**
+```js
+var addCoffee = function (name) {
+    return function (prevName){
+        return new Promise (function(resolve){
+            setTimeout(function(){
+                var newName = prevName? (prevName + ',' + name) : name
+                console.log(newName)
+                resolve(newName)
+            },500)
+        })
+    }
+}
+addCoffee('에스프레소')()
+.then(addCoffee('아메리카노'))
+.then(addCoffee('카페모카'))
+.then(addCoffee('카페라떼'))
+```
 
+**예시5) Generator: 비동기 작업의 동기적 표현**
+```js
+var addCoffee = function(prevName, name){
+    setTimeout(function(){
+        coffeeMaker.next(prevName? prevname + ',' + name : name)
+    }, 500)
+}
+var coffeeGenerator = function* () {
+    var espresso = yield addCoffee('', '에스프레소')
+    console.log(espresso)
+    var americano = yield addCoffee(espresso, '아메리카노')
+    console.log(americano)
+    var mocha = yield addCoffee(americano, '카페모카')
+    console.log(mocha)
+    var latte = yield addCoffee(mocha, '카페라떼')
+    console.log(latte)
+}
+var coffeeMaker = coffeeGenerator()
+coffeeMaker.next()
+```
+- *이 붙은 함수가 Generator 함수
+- Generator 함수를 실행하면 Iterator가 반환된다.
+- Iterator는 next 메서드를 갖고있다. 
+- next 메서드를 호출하면, Generator 함수 내부에 가장 먼저 등장하는 yield에서 함수의 실행을 멈춘다.
+- 이후 next를 호출하면 그다음 yield에서 함수의 실행을 다시 멈춘다.
+- 비동기 작업이 완료도니느 시점마다 next 메서드를 호출하면 Generator 함수의 내부의 소스가 아래로 순차적으로 진행된다.
 
+**예시6) Promise + Async/await 비동기 작업의 동기적 표현**
+```js
+var addCoffee = function(name) {
+    return new Promise(function(resolve){
+        setTimeout(function(){
+            resolve(name)
+        },500)
+    })
+}
 
+var coffeeMaker = async function () {
+    var coffeeList = ''
+    var _addCoffee = async function (name){
+        coffeeList += (conffeeList? ',' :'') + await addCoffee(name)
+    }
+    await _addCoffee('에스프레소')
+    console.log(coffeeList)
+    await _addCoffee('아메리카노')
+    console.log(coffeeList)
+    await _addCoffee('카페모카')
+    console.log(coffeeList)
+    await _addCoffee('카페라떼')
+    console.log(coffeeList)
+}
+coffeeMaker()
+```
+- 비동기 작업을 수행하고자 하는 함수 앞에 async 표기
+- 함수 내부에서 실질적인 비동기 작업이 필요한 위치마다 await를 표기
+- async/await 표기법으로 뒤의 내용을 Promise로 자동 전환하고, 해당 내용이 resolve된 이후에 다음으로 진행한다.
 
+## 6. 정리
+- 콜백 함수는 다른 코드에 인자로 넘겨줌으로써 그 제어권도 함께 위임한 함수다.
+- 제어권을 넘겨받은 코드는 다음과 같은 제어권을 갖는다.
+- 1) 콜백함수를 호출하는 시점을 스스로 판단해서 실행한다.
+- 2) 콜백함수를 호출할 때 인자로 넘겨줄 값들은 순서가 정해져 있다.
+- 3) 콜백함수의 this가 무엇을 바라보도록 할지가 정해져있는 경우도 있다. 정해져있지 않으면 this는 전역객체를 바라보니 bind메서드를 활용해서 바꾸자.
+- 4) 어떤 함수에 인자로 메서드를 전달하더라도 결국 함수로서 실행된다.
+- 5) Promise, Generator, async/await를 활용해 비동기 제어를 효과적으로 해보자.
 
 
 
