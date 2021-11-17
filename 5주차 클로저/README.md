@@ -35,6 +35,20 @@
   - outer 함수 실행 컨텍스트가 종료되면, `LexicalEnvironment`에 저장된 식별자들(a, inner)에 대한 참조를 지운다.
   - 각 주소에 저장돼 있던 값들은 자신을 참조하는 변수가 하나도 없게 되므로 가비지 컬렉터의 수집 대상이 된다.
 
+**예시1-2) 인자로 받은 변수를 참조하는 내부 함수**
+```js
+function outter(value){
+    return function(){
+        console.log(value);
+    }
+}
+const inner = outter('hi World');  
+inner(); // Hi World
+```
+- 외부함수의 지역변수인 value 에 접근 가능하다.
+- 인자로 전달된 value 는 지역변수 역할을 한다.
+- 따라서 외부함수 outter 의 지역변수로 볼 수 있다. 
+
 **예시2) 외부 함수의 변수를 참조하는 내부 함수**
 ```js
 var outer = function() {

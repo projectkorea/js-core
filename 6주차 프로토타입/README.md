@@ -1,24 +1,29 @@
 # 06 프로토타입
 
-- 클래스 기반 언어에서는 `상속`을 사용하지만, 
-- 프로토아입 기반 언어에서는 어떤 객체를 `원형`으로 삼고 이를 복제함으로써 `상속`과 비슷한 효과를 낸다.
+- JavaScript는 프로토타입 기반 언어다.
+- 클래스 기반 언어는 `상속`을 사용하지만, 
+- 프로토타입 기반 언어는 **어떤 객체를 `원형`으로 삼고 이를 복제**함으로써 `상속`과 비슷한 효과를 낸다.
 
 ## 1. constructor, prototype, instance
 ```js
 var instance = new Constructor()
 ```
+1) 생성자 함수(Consturctor)를 new 연산자와 함께 호출한다.
+2) Constructor에서 정의된 내용을 바탕으로 새로운 instance가 생성된다.
+3) instance에는 __proto__라는 프로퍼티가 자동으로 생성된다.
+4) __proto__프로퍼티는 Costructor의 prototype 프로퍼티를 참조한다.
+
+
 ![image](https://user-images.githubusercontent.com/76730867/141883614-4a43f4d3-86c6-47f8-beb2-c8b9539093ef.png)
 
-- 1) 어떤 생성자 함수(Consturctor)를 new 연산자와 함께 호출하면
-- 2) Constructor에서 정의된 내용을 바탕으로 새로운 instance가 생성된다.
-- 3) instance에는 __proto__라는 프로퍼티가 자동으로 생성된다.
-- 4) __proto__프로퍼티는 Costructor의 prototype 프로퍼티를 참조한다.
-  - prototype 객체 내부에는 인스턴스가 사용할 메서드를 저장한다.
-  - 인스턴스에서도 숨겨진 프로퍼티 __proto__를 통해 이 메서드들에 접근할 수 있게 된다.
-
+  - prototype 객체에는 인스턴스가 사용할 메서드를 저장한다.
+  - 그러면 인스턴스에서도 숨겨진 프로퍼티 __proto__를 통해 이 메서드들에 접근할 수 있게 된다.
+---
 **참고**
-- 실무에서는 __proto__보다는 `Object.getPrototypeof()`, `Object.create()`등을 이용해 접근하는 것을 권장한다.
-- ES5.1 명세에서는 __proto__가 아니라 [[prototype]]로 정의돼 있다.
+- 실무에서는 `__proto__`라고 직접 쓰지 않는다.
+-  `Object.getPrototypeof()`, `Object.create()`등을 이용해 접근하는 것을 권장한다.
+- ES5.1 명세에서는 `__proto__`가 아니라 `[[prototype]]`로 정의돼 있다.
+- ---
 
 **예시) Person.prototype**
 ```js
@@ -26,47 +31,48 @@ var Person = function(name){
     this._name = name
 }
 Person.prototype.getName = function(){
-    return this._name; // this가 누굴 가리킬까?
+    return this._name; // this는 누구를 가리키고 있을까?
 }
 ```
-- Person의 인스턴스들은 __proto__ 프로퍼티를 통해 getName을 호출할 수 있다.
+Person의 인스턴스들은 `__proto__` 프로퍼티를 통해 getName을 호출할 수 있다.
 
 ```js
 var suzi = new Person('suzi')
 suzi.__proto__.getName() // undefined
 ```
-- 메서드 호출 결과로 오류가 발생하지 않고, undefined가 나온 점에 주목하자.
-- 변수를 실행해 undefined가 나왔다는 것은 이 변수가 '호출 할 수 있는 함수'에 해당한다는 것이다.
-- 문제는 함수 내부에서 반환하는 값이다.
-- 어떤 함수를 `메서드로서` 호출할 때는 메서드 명 바로 앞 객체고 this가 된다.
-- getName 함수 내부에서의 this는 `suzi`가 되지 않고, `suzi.__proto__`라는 객체가 된다.
+**실행결과** 
+- 메서드 호출 결과로 undefined가 나왔다.
+- 오류가 발생하지 않고, undefined가 나왔다는 것은 이 변수가 '호출 할 수 있는 함수'에 해당한다는 것이다.
+- 문제는 함수 내부에서 반환하는 값이 잘못 된 것이다!
+- 함수를 `메서드`로서 호출할 때는 **메서드 명 바로 앞 객체가 this**가 된다.
+- getName 함수 내부에서의 **this는 `suzi`가 되지 않고, `suzi.__proto__`라는 객체**가 된다.
 - 식별자가 정의돼 있지 않기 때문에 Error대신 undefined를 반환한다.
+<br>
 
-
+**수정 후 코드**
 ```js
 var suzi = new Person('suzi')
 suzi.getName() // suzi
 ```
 - `__proto__`를 빼면 this는 instance가 되어 원하는 값을 출력할 수 있다.
-- `__proto__프로퍼티는 Costructor의 prototype 프로퍼티를 참조한다.`고 했지만 **`__proto__`는 생략 가능한 프로퍼티 이기 때문에 가능**하다.
+- `__proto__`프로퍼티는 "Costructor의 prototype 프로퍼티를 참조한다."고 했지만,
+- `__proto__`는 **생략 가능**한 프로퍼티이기 때문에 가능하다.
 
 
 ```js
 1) suzi.__proto__.getName
 2) suzi.getName
 ```
-- 1과2 모두, `__proto__`에 있는 getName 메소드에 접근할 수 있다.
-- 하지만 `__proto__`를 생략하지 않으면 this는 서로 다른 객체를 바라본다. 
+- 1,2 모두 `__proto__`에 있는 getName 메소드에 접근할 수 있다.
+-  `__proto__`프로퍼티는 생략 가능하도록 구현돼 있기 때문에 **생성자 함수의 prototype에 어떤 메서드나 프로퍼티가 있다면 인스턴스에서도 동일하게 접근할 수 있다.**
+
+
 ![image](https://user-images.githubusercontent.com/76730867/141886399-180dd52c-9332-41a7-969f-b2a132c2c33c.png)
-```
-new 연산자와 함께 Constructor를 호출하면 instance가 만들어지는데, 
-이 instance의 생략 가능한 프로퍼티인 __proto__는 Constructor.prototype을 참조한다.
-```
 
-- JavaScript는 함수에 자동으로 객체인 prototype 프로퍼티를 생성한다.
-- 해당 함수를 생성자 함수로서 사용할 경우, new 연산자와 함께 함수를 호출할 경우, 그로부터 생성된 인스턴스에는 숨겨진 `__proto__`프로퍼티가 자동으로 생성된다.
-- `__proto__`프로퍼티는 생략 가능하도록 구현돼 있기 때문에 **생성자 함수의 prototype에 어떤 메서드나 프로퍼티가 있다면 인스턴스에서도 동일하게 접근할 수 있다.**
+- 하지만 `__proto__`를 생략하지 않으면 **this는 서로 다른 객체를 바라본다**는 차이는 있다.
+<br>
 
+**예시) Constructor와 Instance 내부 살펴보기**
 ```js
 var Constructor = function (name) {
     this.name = name;
@@ -81,10 +87,12 @@ console.dir(instance);
 ```
 
 ![image](https://user-images.githubusercontent.com/76730867/141901965-88bd77e4-9142-47e1-a32e-1bcfdc989444.PNG)
-- 색상 차이는 {enumerable:false} 속성이 부여된 프로퍼티에 따라 다르다
-- 짙은 색은 enumerable, 열거 가능한 프로퍼티를 의미한다.
-- for in 등으로 객체의 프로퍼티 전체에 접근 가능여부를 구분했다.
+- 색상 차이는 `{enumerable:false}` 속성이 부여된 프로퍼티에 따라 다르다.
+- 짙은 색은 enumerable, **열거 가능**한 프로퍼티를 의미한다.
+- for in 등으로 **객체의 프로퍼티 전체에 접근 가능여부**를 구분했다.
+<br>
 
+**예시) Constructor의 다른 프로퍼티들**
 ```js
 var arr = [1,2]
 arr.forEach(function(){}) // O
@@ -94,8 +102,11 @@ ar.isArray()              // TypeError: arr.isArray is not a function
 
 <p align='center'><img src="https://user-images.githubusercontent.com/76730867/141904952-63f936fc-5098-4481-a20a-2d8211f58282.png" width="400" height="300"/></center></p>
 
-- Array의 prototype 프로퍼티 내부에 있지 않은 from등 메서드들은 인스턴스가 직접 호출할 수 없다.
-- Array 생성자 함수에서 직접 접근해야 실행이 가능하다.
+- Array의 prototype 프로퍼티 내부에 있지 않은 `from()`과 같은 메서드들은,
+  1) 인스턴스가 직접 호출할 수 없다.
+  2) 생성자 함수(Array)에서 직접 접근해야 실행이 가능하다.
+
+---
 
 ## 2. constructor 프로퍼티
 
