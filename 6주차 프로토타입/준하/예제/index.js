@@ -24,5 +24,12 @@ console.log(junha.getName());
 //
 const arr1 = [1, 2];
 console.dir(arr1);
-
+//
 console.dir(Object);
+//
+console.log('this is start');
+var arr2 = [1, 2];
+var arr3 = new arr2.constructor(3, 4);
+var arr4 = new Array(3, 4);
+console.log(arr3);
+console.log(arr4);
