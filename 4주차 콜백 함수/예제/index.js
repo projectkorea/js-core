@@ -32,20 +32,19 @@ var obj = {
 // currentValue, Index, Array이다.
 // 따라서 undefiend가 나오지 않고 4 0 5 1 6 2 가 나온다.
 
-// Q-1.setTimeout(obj1.func, 1000);하면 되는거 아닌가
-// A-1 콜백함수가 함수로서 , obj1의 메서드의 내부 함수과 반환되어 this가 obj1을 참조하게 된다.
-// Q-2.this를 바인딩 왜해? console.log(this.name)하면 되는거 아닌가
-// A-2. return에 함수가 더 있기 때문에 값을 저장안하면 this는 전역객체를 참조하기 때문이다.
-
+// this를 바인딩 왜해?
 var obj1 = {
   name: 'obj1',
   func: function () {
+    debugger;
     var self = this;
     return function () {
+      debugger;
       console.log(self.name);
+      debugger;
     };
   },
 };
 var callback = obj1.func();
-
 setTimeout(callback, 1000);
+setTimeout(obj1.func, 1000);
