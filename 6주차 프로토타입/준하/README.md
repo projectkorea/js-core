@@ -13,7 +13,7 @@ var instance = new Constructor();
 1. 생성자 함수(Consturctor)를 new 연산자와 함께 호출한다.
     - 생성자는 기본적으로 함수다.
     - 함수 호출 시 new를 붙이면 생성자 함수가 된다.
-2. Constructor에서 정의된 내용을 바탕으로 새로운 `idnstance`가 생성된다.
+2. Constructor에서 정의된 내용을 바탕으로 새로운 `instance`가 생성된다.
 3. `instance`에는 `__proto__`라는 프로퍼티가 자동으로 생성된다.
 4. `__proto__`는 `Costructor.prototype`를 참조한다.
 
@@ -267,13 +267,15 @@ var arr = [1, 2];
 -   따라서 모든 객체의 `__proto__`에는 `Object.prototype`이 연결되고, `__proto__`객체도 예외가 아닌 것이다.
 -   이와 같은 프로토타입 체이닝을 그림으로 표현하면 아래와 같다.
     ![](https://user-images.githubusercontent.com/76730867/142205344-0dfb7cdc-c8d6-48b3-87b5-bccd1af2b1c4.PNG)
+    ![](https://user-images.githubusercontent.com/76730867/142761294-93a13e34-a76a-4cfb-b061-8ec3561ad75f.png)
+
 
 **예시) 배열에서 배열 메서드, 객체 메서드 실행**
 
 ```js
 var arr =[1,2]
-arr(.__proto__).push(3) // OK
-arr(.__proto__)(.__proto__).hasOwnProperty(2) // Ok
+arr(.__proto__).push(3) // push: 배열 메서드
+arr(.__proto__)(.__proto__).hasOwnProperty(2) // hasOwnProperty: 객체 메서드
 ```
 
 -   데이터의 `__proto__` 내부의 `__proto__`가 연쇄적으로 이어진 것을 **프로토타입 체인**이라고 한다.
@@ -298,13 +300,61 @@ arr.toString(); // 1_2
 ---
 
 ### 참고
+![](https://user-images.githubusercontent.com/76730867/142761370-ea7150e8-3bce-4923-b851-2daf050e4ab8.jpg)
+
+- instance.constructor.constructor => Function 생성자 함수
+
 
 ---
 
 ### 3) 객체 전용 메서드의 예외사항
+- 어떤 생성자 함수든 prototype은 객체이기 때문에 Object.prototype은 언제나 프로토타입 체인의 최상단이 된다.
+- 객체에서만 사용할 메서드를 Object.prototype 내부에 정의한다면, 다른 데이터 타입도 해당 메서드를 사용할 수 있게 된다.
+- 따라서 객체만을 대상으로 동작하는 객체 전용 메서드들은, Object에 스태틱 메서드로 부여해야 한다. 
+- 반대로 같은 이유에서 Object.prototype에는 어떤 데이터에서도 활용할 수 있는 범용적인 메서드가 있다. toString, hasOwnPRoperty, valueoF, isPrototypeOf 등은 모든 변수가 마치 자신의 메서드인 것처럼 호출할 수 있다.
+
+```js
+var _proto = Object.create(null);
+_proto.getValue = function(key) {
+    return this[key]
+}
+
+var obj = Object.create(_proto)
+obj.a = 1
+
+console.log(obj) //{a, [__proto__,[getValue]}
+```
+- Object.create(null)은 `__proto__`가 없는 객체를 생성합니다.
+- 이 방식으로 만든 객체는 일반적인 데이터에서 반드시 존재하던 내장(built-in) 메서드 및 프로퍼티들이 제거됨으로써 기본 기능에 제약이 생ㄱ긴 대신, 객체 자체의 무게가 가벼워짐으로써 성능상 이점이 생긴다. 
+
 
 ### 4) 다중 프로토타입 체인
+- 자바스크립트의 기본 내장 데이터 타입들은 모두 프로토타입 체인이 1단계(객체)이거나, 2단계(그 외 나머지)로 끝난다.
+- 사용자가 새롭게 만든다면 그 이상도 가능하다.
+- 대각선 `__proto__`를 연결해나가면 무한대로 체인 관계를 이어나가, 다른 언어의 클래스와 비슷하게 동작하는 구조를 만들 수 있다. 
+```js
+var Grade = function() {
+    var args = Array.prototype.slice.call(arguments)
+    for (var i = 0; i<args.length; i++){
+        this[i] = args[i]
+    }
+    this.length = args.length
+}
+var g = new Grade(100, 80)
+```
+```js
+Grade.prototype = []
 
+console.log(g) // Grade(2) [100, 80]
+console.log(g.pop) // 80
+g.push(90)
+console.log(g) // Grade(2) [100, 90]
+```
+- 별개로 분리돼 있던 데이터가 연결되어 하나의 프로토타입 체인 형태를 띠게 된다.
+- Grade의 인스터인 g에서 직접 배열의 메서드를 사용할 수 있게 된다.
+- g 인스턴스 입장에서는 프로토타입 체인에 따라 g 객체 자신이 지니는 멤버, Grade의 prototype에 있는 멤버, Array.prototype에 있는 멤버, Object.prototype에 있는 멤버에 접근할 수 있게 된다.
+![](https://user-images.githubusercontent.com/76730867/142762946-55ecbc47-723a-46d6-a21d-8cc86a1fca3a.jpg)
+![](https://user-images.githubusercontent.com/76730867/142762967-d1c43b92-5f57-456a-87d8-aa3e91eee203.png)
 ## 정리
 
 -   어떤 생성자 함수를 new 연산자와 함께 호출하면 Consturctor에서 정의된 내용을 바탕으로 새로운 인스턴스가 생성된다.
