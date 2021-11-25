@@ -421,3 +421,40 @@ console.log(a)
 
 - 전역 컨텍스트의 LexicalEnvironmnet에 담긴 변수를 전역변수, 그밖에 함수에 의해 생성된 실행 컨텍스트의 변수들은 모두 지역변수이다. 안전한 코드 구성을 위해 전역변수는 가급적 사용을 최소화해야한다.
 - this에는 실행 컨텍스트를 활성화하는 당시에 지정된 this가 저장된다. 함수를 호출하는 방법에 따라 그 값이 달라지는데, 지정되지 않은 경우 전역객체가 저장된다.
+
+## Quiz) 다음 IIFE의 실행결과는?
+```js
+var foo = {
+    bar: function () {
+        return this.baz;
+    },
+    baz: 1,
+};
+```
+
+```js
+(function () {
+    return typeof arguments[0]();
+})(foo.bar);
+```
+
+-
+```js
+(
+    function(){
+        return typeof this.baz
+    }
+)
+```
+
+```js
+function execFoo() {
+    return console.log(typeof arguments[0]());
+}
+execFoo(foo.bar);
+
+// 3.
+console.log(foo.bar());
+```
+- 객체의 메서드는 함수로써 출력하면 함수로 작동할 뿐이다.
+- foo.bar은 엄연히 함수다. 메서드가 되려면 foo.bar()가 되야 점 앞에 foo가 컨텍스트가 되는 것이다.

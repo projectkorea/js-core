@@ -1,20 +1,23 @@
 # 07 클래스
-- 자바스크립트는 프로토타입 기반 언어라서 '상속'개념이 존재하지 않는다. 
-- ES6에는 클래스 문법이 추가됐지만, 일정 부분은 프로토타입을 활용하고 있기 때문에 ES5 이하에서 클래스를 흉내내기 위한 구현방식을 학습하는 것은 의미있다.
+- 자바스크립트는 `프로토타입 기반 언어`라 `상속`개념이 존재하지 않는다. 
+- ES5 이하의 `클래스를 흉내내기 위한 구현방식`을 학습해보자.
+- ES6에는 클래스 문법이 추가되어, 간단하게 클래스를 구현할 수 있다.
 
 ## 1. 클래스와 인스턴스
 ![](https://user-images.githubusercontent.com/76730867/141934645-785909c0-99ed-4a04-aa0f-c9713428c098.jpg)
-- 어떤 클래스 속성을 지니는, 실존하는 개체를 일컬어 인스턴스라고 한다.
-- 어떤 조건에 부합하는 구체적인 예시라고도 한다.
-- 클래스는 현실세계에서의 클래스와 마찬가지로 '공통 요소를 지니는 집단을 분류하기 위한 개념'이라는 측면에서는 일치한다.
-- 하지만 인스턴스들로부터 공통점을 발견해서 클래스를 정의하는 현실과 달리, **클래스가 먼저 정의돼야만 그로부터 공통적인 요소를 지니는 개체들을 생성**할 수 있다.
+- **추상화**: 핵심적인 개념을 간추려 내는 것
+- **인스턴스**:
+  - 클래스 속성을 지니는, 실존하는 개체,
+  - 조건에 부합하는 구체적인 예시라고도 한다.
+- **클래스**: `공통 요소를 지니는 집단`을 분류하기 위한 개념이다.
+- 인스턴스들로부터 공통점을 발견해서 클래스를 정의하는 현실과 달리, **클래스가 먼저 정의돼야만** 그로부터 공통적인 요소를 지니는 개체들을 생성할 수 있다.
 - 클래스는 사용하기에 따라 추상적인 대상도, 구체적인 개체도 될 수 있다.
 
 ## 2. 자바스크립트 클래스
 ![](https://user-images.githubusercontent.com/76730867/142974262-86d900ea-bd6e-4676-b570-0b75bebe9cea.jpg)
 
 
-### 스테틱 메서드 예시
+**예시) 스테틱 메서드 구현**
 ```js
 // 생성자
 var Rectangle = function(width, height) {
@@ -62,8 +65,9 @@ g.push(90) // Grade {0:100, 1:80, 2:90, length:3}
 delete g.length
 g.push(70) // Grade {0:70, 1:80, 2:90, length:1}
 ```
-- g 인스턴스는 객체이기 때문에 length 프로퍼티가 삭제되고,
-- 내장객체인 배열 인스턴스의 length 프로퍼티는 `configurable:false`라서 삭제가 안되기 때문에 `g.__proto__length`, 즉, `[].length`를 참조하게 된다.
+- g.length는 삭제되고, `g.__proto__.length`를 참조한다.
+- g 인스턴스는 객체이기 때문에 length 프로퍼티가 삭제되고, 내장객체인 배열 인스턴스의 length 프로퍼티는 `configurable:false`라서 삭제가 안되기 때문에 `g.__proto__length`, 즉, `[].length`를 참조하게 된다.
+
 
 ```js
 Grade.prototype = ['a','b','c','d']
@@ -89,11 +93,10 @@ Rectangle.prototype.getArea = function() {
 }
 
 var Square = function (width) {
-    Rectangle.call(this, width, width) // (1)
+    Rectangle.call(this, width, width) // (1) 생성자 함수
 }
 
-Square.prototype = new Rectangle() // (2)
-
+Square.prototype = new Rectangle() // (2) 메서드 상속
 var rect = new Rectangle(3,4)  
 var sq = new Square(5)         
 ```
