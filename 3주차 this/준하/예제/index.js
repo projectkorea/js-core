@@ -94,3 +94,54 @@ var obj = {
     },
 };
 obj.outer();
+
+//
+console.log('-------------------------------------');
+var obj3 = {
+    outer: function () {
+        console.log(this);
+        var innerFunc = () => {
+            console.log(this);
+        };
+        innerFunc();
+    },
+};
+obj3.outer();
+
+//
+console.log('-------------------------------------');
+let glob;
+const obj5 = {
+    name: 'jh',
+    getName: function () {
+        glob = this;
+        console.log(this);
+        setTimeout(() => {
+            console.log(this);
+        });
+    },
+};
+obj5.getName();
+console.log(this);
+console.log(glob);
+
+//
+console.log('-------------------------------------');
+let glob2;
+const obj52 = {
+    name: 'jh',
+    getName: function () {
+        function getFirstLetter() {
+            return this;
+        }
+        glob2 = this;
+        console.log(this); // 1
+        setTimeout(() => {
+            console.log(this); // 2
+        });
+        console.log(getFirstLetter()); // 3
+    },
+};
+obj52.getName();
+console.log(this); // 4
+console.log(glob2); // 5
