@@ -727,3 +727,13 @@ obj5.getName();
 console.log(this);
 console.log(glob);
 ```
+
+## Quiz.
+<img width="358" alt="1" src="https://user-images.githubusercontent.com/76730867/143515266-9c2d57af-55b9-44c6-a662-a164988e3f49.png">
+
+- 오류가 발생한다. undefined의 property를 참고하면 undefined가 나오지 않고 Error가 나온다.
+
+<img width="362" alt="2" src="https://user-images.githubusercontent.com/76730867/143515270-3b728391-fd28-4d0e-b4df-542f89985b38.png">
+
+- band undefined roto play start
+- play메서드의 this는 호출주체가 담긴다. 이는 roto이기 때문에 roto안에 name 프로퍼티는 없어서 undefined, membername 프로퍼티는 있기 때문에 'roto'가 출력된다.
