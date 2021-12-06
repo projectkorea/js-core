@@ -136,7 +136,7 @@ var obj = {
     }
 }
 obj.method(1) // {method: f } 1
-obj['mehtod'] // {method: f } 2
+obj['mehtod'](2) // {method: f } 2
 ```
 - 생각보다 간단하다. 
 - '점 표기법' 또는 '대괄호 표기법'과 같이 함수 이름 앞에 객체가 명시돼 있는 경우만 메서드로 호출한 것이다.
@@ -144,7 +144,7 @@ obj['mehtod'] // {method: f } 2
 **메서드 내부에서의 this**
   
 ```js
-var obj = {
+var obj = { 
     methodA: function () { console.log(this) }
     inner: {
         methodB: function (){ console.log(this) }
@@ -737,3 +737,9 @@ console.log(glob);
 
 - band undefined roto play start
 - play메서드의 this는 호출주체가 담긴다. 이는 roto이기 때문에 roto안에 name 프로퍼티는 없어서 undefined, membername 프로퍼티는 있기 때문에 'roto'가 출력된다.
+
+**참고**
+- Q. this는 체이닝해서 상위 스코프를 찾지 못하나?
+- A. 
+  - 체이닝해서 상위 컨텍스트의 변수를 찾을 때 내부에는 변수가 아예 없으며, 접근하고자 하면 스코프체인상 가장 가까운 변수에 접근하게 된다.
+  - 객체를 정의할 때 this시 상위 프로퍼티의 key를 찾지 못하는 이유는 실행컨텍스트가 생성되지 않아 없기 때문이며, 가장 가까운 스코프체인상의 this는 전역객체가 된 것이다.
