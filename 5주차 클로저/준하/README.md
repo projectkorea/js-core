@@ -3,7 +3,7 @@
 ## 1. 클로저의 의미와 원리
 
 ### 1) 클로저란 무엇인가
-- 클로저는 **함수형 프로그래밍 언어**에서 등장하는 보편적인 특징이다.
+- 클로저는 **함수형 프로그래밍 언어**에서 자주 등장하는 특징이다.
 - 다양한 서적에서 클로저를 다음과 같이 요약하고 있다.
 
 ```
@@ -16,13 +16,10 @@
 7. 자신이 생성될 때의 스코프에서 알 수 있었던 변수들 중, 언젠가 자신이 실행될 때 사용할 변수들만을 기억하여 유지시키는 함수
 ```
 
-- **클로저**는
-    1) `함수`와 
-    2) `그 함수가 선언될 당시의 LexicalEnviornment`
-    =  `outerEnvironmentRefernce`의 **상호관계에 따른 현상**이다.
-- 가령, 컨텍스트 A에서 내부함수 B를 선언한다고 하자.
+- **클로저**는 **내부함수에서 외부 변수를 참조하는 상황**에서 발생하는 현상을 말한다.
+- `함수`와 `그 함수가 선언될 당시의 LexicalEnviornment`, = `outerEnvironmentRefernce`의 **상호관계에 따른 현상**이다.
+- **예시) 컨텍스트 A에서 내부함수 B를 선언하는 경우**
   - B의 실행 컨텍스트가 활성화된 시점에는 B의 `outerEnvironmentReference`가 참조하는 대상인 A의 `LexicalEnviornment`에 접근이 가능하다.
-- 즉, 클로저는 **내부함수에서 외부 변수를 참조하는 상황**에서 발생하는 현상을 말하는 것이다.
 
 ### 2) 외부 함수의 변수를 참조하는 내부 함수
 
@@ -396,7 +393,7 @@ var partial = function() {
         // call의 두번째 파라메터는 slice의 아규먼트로 들어간다.
         // 따라서 slice(1)이 되고 이는 arguments[1:]을 의미한다.
         var restArgs = Array.prototype.slice.call(arguments) // 나중에 받을 아규먼트
-        return func.apply(this, partialArgs.concat(restArgs))
+        return func.apply(this, partialArgs.concat(restArgs)) // function안에의 this
     }
 }
 // 참고: Array.prototype.slice.call(arguments)는 유사배열객체를 배열로 만드는 코드
@@ -411,7 +408,7 @@ var add = function() {
     return result
 }
 var addPartial = partial(add, 1, 2, 3, 4, 5) // add~5 매게변수가 클로저 형성
-console.log(addPartial(6,7,8,9,10)) // 5
+console.log(addPartial(6,7,8,9,10)) // 55
 ```
 
 ```js
@@ -615,12 +612,12 @@ const thunk = store => next => action => {
 ## Quiz
 
 ```js
-function outer(value){
-    return function(){
-        console.log(value);
+    function outer(value){
+        return function inner(){
+            console.log(value);
+        }
     }
-}
-const inner = outer('hi World');  
-inner();
+    const inner = outer('hi World');  
+    inner();
 ```
 - 위의 코드는 클로저의 예시라고 할 수 있는가?
