@@ -1,10 +1,5 @@
 # 05. 클로저
 
-- 익명함수, 실행
-- 128페이지, bind메서드 
-- car , this, return {}
--452줄, _는 빼고, 후에 추가하는 건 개수상관없음
-
 ## 1. 클로저의 의미와 원리
 
 ### 1) 클로저란 무엇인가
@@ -200,7 +195,7 @@ var fruits = ['apple', 'banana', 'peach']
 var $ul = document.createElement('ul')
 ```
 
-**예시1)**
+**예시1) 클로저 사용 O**
 ```js
 fruits.forEach(function(fruit){                  // A 함수
     var $li = document.createElement('li')
@@ -215,7 +210,7 @@ document.body.appendChild($ul)
 - B 함수에서 fruit 참조하고 있기 때문에, B 함수의 `outerEnvironmentReference`가 A 함수의 `LexcialEnvironment`를 참조한다. 
 - 반복을 줄이기 위해 B 함수를 외부로 분리하면 아래 코드와 같다.
 
-**예시2) 콜백함수 분리**
+**예시2) 콜백함수 분리, 클로저 사용 X**
 ```js
 var alertFruit = function(fruit){
     alert('your choice is' + fruit)
@@ -230,10 +225,10 @@ fruits.forEach(function(fruit){
 document.body.appendChild($ul)
 alertFruit(fruits[1]) // banana
 ```
-- 콜백 함수의 인자에 대한 제어권을 `addEventListener`가 가졌기 때문에, 콜백 함수를 호출할 때 **첫 번째 인자에 '이벤트 객체'**를 주입하여 과일명이 아니라 이벤트 객체가 출력된다.
-- 이는 bind메서드로 해결한다.
+- 콜백 함수의 인자에 대한 제어권을 `addEventListener`가 가졌기 때문에, 콜백 함수를 호출할 때 **첫 번째 인자에 '이벤트 객체'**를 주입하여 과일명이 아니라 이벤트 객체가 출력된다. 이는 bind메서드로 해결한다.
+- fruit라는 변수자체를 이용하지 않기 때문에 클로저를 사용하지 않은 예시이다.
 
-**예시3) bind메서드**
+**예시3) bind메서드, 클로저 사용 O**
 ```js
 fruits.forEach(function(fruit){
     var $li = document.createElement('li')
@@ -245,8 +240,10 @@ fruits.forEach(function(fruit){
 ```
 - bind 메서드의 첫 번째 인자가 새로 바인딩할 this인데, 생략할 수 없기 때문에 원래의 this를 유지할 수 없다. 그리고 두번째 인자에 이벤트 객체가 넘어온다.
 - 따라서 이는 bind메서드가 아닌 고차함수로 해결한다.
+- 새로 바인딩되었기 때문에 클로저를 사용하지 않은 예시이다.
+- 엄밀히 따지면, `alertFruit.bind(null,fruit)`가 있어야 할 자리는 함수가 와야하는 것이므로, 매개변수가 들어가 따로 외부변수를 호출할 일이 없다.
 
-**예시4) 고차함수 활용**
+**예시4) 고차함수 활용, 클로저 사용 O**
 ```js
 var alertFruitBuilder  = function (fruit) {
     return function() {
@@ -451,7 +448,7 @@ var partial2 = function () {
             if(partialArgs[i] === _){ 
             // = if(partialArgs[i] === Symbol.for('EMPTY_SPACE'))
                 partialArgs[i] = restArgs.shift()
-                // partialArgs가 _면 restArgs에서 땡겨받음
+                //빈칸이 나올 때 마다 (partialArgs가 _면) restArgs에서 하나씩 땡겨받음
             }
         }
         return func.apply(this,partialArgs.concat(restArgs))
@@ -467,7 +464,6 @@ console.log(addPartial(3,6,7,10))
 - ES6 환경은 `Symbol.for()`를 활용한다.
 - `Symbol.for()`은 전역 심볼공간에 인자로 넘어온 문자열이 이미 있으면 해당 값을 참조하고, 선언돼 있지 않으면 새로 만드는 방식으로, 어디서든 접근 가능하면서 유일무이한 상수를 만들때 적합하다.
 - `var EmptySpace = Symbol.for('EMPTY_SPACE')`
-
 
 
 **예시4) 디바운스**
