@@ -1,28 +1,30 @@
 # 05. 클로저
 
+- 익명함수, 실행
+- 128페이지, bind메서드 
+- car , this, return {}
+-452줄, _는 빼고, 후에 추가하는 건 개수상관없음
+
 ## 1. 클로저의 의미와 원리
 
 ### 1) 클로저란 무엇인가
-- 클로저는 **함수형 프로그래밍 언어**에서 등장하는 보편적인 특징이다.
+- 클로저는 **함수형 프로그래밍 언어**에서 자주 등장하는 특징이다.
 - 다양한 서적에서 클로저를 다음과 같이 요약하고 있다.
 
 ```
 1. 자신을 내포하는 함수의 컨텍스트에 접근할 수 있는 함수
 2. 함수가 특정 스코프에 접근할 수 있도록 의도적으로 그 스코프에서 정의하는 것
 3. 함수를 선언할 때 만들어지는 유효범위가 사라진 후에도 호출할 수 있는 함수
-4. 이미 생명 주기상 끝난 외부 함수의 변수를 참조하는 변수
+4. 이미 생명 주기상 끝난 외부 함수의 변수를 참조하는 함수
 5. 자유변수가 있는 함수와 자유변수를 알 수 있는 환경의 결합
 6. 로컬 변수를 참조하고 있는 함수 내의 함수
 7. 자신이 생성될 때의 스코프에서 알 수 있었던 변수들 중, 언젠가 자신이 실행될 때 사용할 변수들만을 기억하여 유지시키는 함수
 ```
 
-- **클로저**는
-    1)`함수`와 
-    2) `그 함수가 선언될 당시의 LexicalEnviornment`
-    =  `outerEnvironmentRefernce`의 **상호관계에 따른 현상**이다.
-- 가령, 컨텍스트 A에서 내부함수 B를 선언한다고 하자.
+- **클로저**는 **내부함수에서 외부 변수를 참조하는 상황**에서 발생하는 현상을 말한다.
+- `함수`와 `그 함수가 선언될 당시의 LexicalEnviornment`, = `outerEnvironmentRefernce`의 **상호관계에 따른 현상**이다.
+- **예시) 컨텍스트 A에서 내부함수 B를 선언하는 경우**
   - B의 실행 컨텍스트가 활성화된 시점에는 B의 `outerEnvironmentReference`가 참조하는 대상인 A의 `LexicalEnviornment`에 접근이 가능하다.
-- 즉, 클로저는 **내부함수에서 외부 변수를 참조하는 상황**에서 발생하는 현상을 말하는 것이다.
 
 ### 2) 외부 함수의 변수를 참조하는 내부 함수
 
@@ -396,7 +398,7 @@ var partial = function() {
         // call의 두번째 파라메터는 slice의 아규먼트로 들어간다.
         // 따라서 slice(1)이 되고 이는 arguments[1:]을 의미한다.
         var restArgs = Array.prototype.slice.call(arguments) // 나중에 받을 아규먼트
-        return func.apply(this, partialArgs.concat(restArgs))
+        return func.apply(this, partialArgs.concat(restArgs)) // function안에의 this
     }
 }
 // 참고: Array.prototype.slice.call(arguments)는 유사배열객체를 배열로 만드는 코드
@@ -411,7 +413,7 @@ var add = function() {
     return result
 }
 var addPartial = partial(add, 1, 2, 3, 4, 5) // add~5 매게변수가 클로저 형성
-console.log(addPartial(6,7,8,9,10)) // 5
+console.log(addPartial(6,7,8,9,10)) // 55
 ```
 
 ```js
@@ -448,7 +450,8 @@ var partial2 = function () {
         for(var i =0;i<partialArgs.length;i++){
             if(partialArgs[i] === _){ 
             // = if(partialArgs[i] === Symbol.for('EMPTY_SPACE'))
-                partialArgs[i] = restArgs.shift() // partialArgs가 _면 restArgs에서 땡겨받음
+                partialArgs[i] = restArgs.shift()
+                // partialArgs가 _면 restArgs에서 땡겨받음
             }
         }
         return func.apply(this,partialArgs.concat(restArgs))
@@ -471,7 +474,7 @@ console.log(addPartial(3,6,7,10))
 
 - **디바운스**는 짧은 시간 동안 동일한 이벤트가 많이 발생할 경우, 이를 전부 처리하지 않고 처음 또는 마지막에 발생한 이벤트에 대해 한 번만 처리한다.
 - 프론트엔드 성능 최적화에 큰 도움을 주는 기능 중 하나이다.
-- scroll, wheel, mousemove, resize등에 적용하기 좋다. 
+- `scroll`, `wheel`, `mousemove`, `resize` 등에 적용하기 좋다. 
 
 ```js
 var debounce = function(eventName, func, wait){
@@ -493,36 +496,133 @@ var wheelHandler = function(e) {
 document.body.addEventListener('mousemove', debounce('move', moveHandler, 500));
 document.body.addEventListener('mousewheel', debounce('wheel', wheelHandler, 700));
 ```
-- 
+
 
 ### 4) 커링 함수
 - 여러 개의 인자를 받는 함수를 하나의 인자만 받는 함수로 나눠서 순차적으로 호출될 수 있게 체인 형태로 구성한 것.
-- 한 번에 하나의 인자만 전달하는 것을 원칙으로 함
-- 중간 과정상의 함수를 실행한 결과는 그다음 인자를 받기 위해 대기만 할 뿐으로, 마지막 인자가 전달되기 전까지는 원본 함수가 실행되지 않는다. 
-- (부분 적용 함수는 여러개의 인자를 전달할 수 있고, 실행 결과를 재실행할 때 원본 함수가 무조건 실행된다. )
-  ```js
-  
-  ```
+- **한 번에 하나의 인자만 전달**하는 것을 원칙으로 한다는 점에서 `부분적용함수`와 차이가 있다.
+- 또한 중간 과정상의 함수를 실행한 결과는 그다음 인자를 받기 위해 대기만 할 뿐으로, **마지막 인자가 전달되기 전까지는 원본 함수가 실행되지 않는다.** 
+- (부분 적용 함수는 **여러개의 인자**를 전달할 수 있고, **실행 결과를 재실행**할 때 원본 함수가 실행된다. )
+
+**예시1) 지연실행(lazy execution)**
+```js
+var curry3 = function (func) {
+    return function (a) {
+        return function (b) {
+            return func(a,b);
+        };
+    };
+};
+
+var getMaxWith10 = curry3(Math.max)(10);
+console.log(getMaxWith10)(8) // 10
+console.log(getMaxWith10)(25) // 25
+
+var getMinWith10 = curry3(Math.min)(10);
+console.log(getMinWith10)(8) // 8
+console.log(getMinWith10)(25) // 10
+```
+
+**예시2) 지연실행(lazy execution)**
+```js
+var curry5 = function (func) {
+    return function (a) {
+        return function (b) {
+            return function (c) {
+                return function (d) {
+                    return function (e) {
+                        return func(a, b, c, d, e)
+                    }
+                }
+            }
+        }
+    }
+}
+var getMax = curry5(Math.max)
+console.log(getMax(1)(2)(3)(4)(5))
+```
+```js
+var curry5 = func => a => b => c => d => e => func(a, b, c, d, e)
+```
+- 각 단계에서 받은 인자들을 모두 마지막 단계에서 참조할 것이므로 GC되지 않고, 메모리에 차곡차곡 쌓였다가, 마지막 호출로 실행 컨텍스트가 종료된 후에 한꺼번에 GC의 수거대상이 된다.
+- 커링함수가 유용한 경우는 당장 필요한 정보만 받아 전달하고 또 필요한 정보가 들어오면 잔달하는 식으로 마지막 인자가 넘어갈 때까지 함수 실행을 미룰 때 유용하다.
+- 즉, 원하는 시점까지 지연시켰다가 실행해야 하는 상황에 커링 함수를 사용한다.
+
+```js
+var getInformation = function (baseUrl) {
+    return function (path) {
+        return function (id) {
+            return fetch(baseUrl + path + '/' + id)
+        }
+    }
+}
+
+var = getInformation = baseUrl => path => id => fetch(baseUrl + path + '/' + id)
+```
+
+- REST API를 이용할 경우, baseUrl은 몇 개로 고정되지만 path, id 값은 많을 수 있다. 
+
+```js
+var imageUrl = 'http://imageAddress.com/'
+var productUrl = 'http://productAddress.com/'
+
+// 이미지 타입별 요청 함수 준비
+var getImage = getInformation(imageUrl) // http://imageAddress.com/
+var getEmoticon = getImage('emoticon') // http://imageAddress.com/emoticon
+var getIcon = getImage('icon')         // http://imageAddress.com/icon
+
+// 제품 타입별 요청 함수 준비
+var getProduct = getInformation(productUrl)
+var getFruit = getProduct('fruit')
+var getVegetable = getProduct(`vegetable`)
+
+// 실제 요청
+var emoticon1 = getEmoticon(100) // http://imageAddress.com/emoticon/100
+var icon1 = getIcon(230) // http://imageAddress.com/icon/230
+var fruit1 = getFruit(300) // http://imageAddress.com/fruit/300
+var fruit2 = getFruit(400) // http://imageAddress.com/fruit/400
+var vegetable1 = getVegetable(500) // http://imageAddress.com/vegetable/500
+var vegatable2 = getVegetable(660) // http://imageAddress.com/vegetable/660
+```
+- 서버에 정보를 요청할 때, 매번 baseUrl부터 전부 기입하는 것보다 공통적인 요소는 먼저 기억시켜두고 특정한 값(id)만으로 서버 요청을 수행하는 함수를 만든다면 개발 효율성과 가독성이 더 좋을 것이다.
+
+- Flux 아키텍처 구현체 중 하나인 Redux 미들웨어에서도 커링을 사용하고 있다.
+- 
+**예시1) Redux Middleware 'Logger'**
+```js
+const logger = store => next => action => {
+    console.log('dispatching', action)
+    console.log('next state', store.getState())
+    return next(action)
+}
+```
+
+**예시2) Redux Middleware 'thunk'**
+```js
+const thunk = store => next => action => {
+    return typeof action === 'function'
+        ? action(dispatch, store.getState())
+        : next(action)
+}
+```
+- `store`와 `next`는 프로젝트 내에서 한 번 생성된 이후로 바뀌지 않는 속성인데 비해, `action`의 경우 매번 달라진다.
+- store와 next 값이 결정되면 Redux 내부에서 logger 또는 thunk에 store, next를 미리 넘겨서 반환된 함수를 저장시켜 놓고 이후에는 action만 받아서 처리할 수 있게한다.
 
 ## 정리
 - 클로저란 어떤 함수에서 선언한 변수를 참조하는 내부함수를 외부로 전달할 경우, 함수의 실행컨텍스트가 종료된 이후에도 해당 변수가 사라지지 않는 현상이다. 
 - 내부 함수를 외부로 전달하는 방법에는 함수를 return하는 경우뿐만 아니라 콜백으로 전달하는 경우도 포함된다.
 - 클로저는 메모리를 계속 차지하기 때문에, 사용하지 않게 된 클로저는 메모리 관리의 필요성이 있다.
 
-
-
-
-
 ---
 ## Quiz
 
 ```js
-function outer(value){
-    return function(){
-        console.log(value);
+    function outer(value){
+        return function inner(){
+            console.log(value);
+        }
     }
-}
-const inner = outer('hi World');  
-inner();
+    const inner = outer('hi World');  
+    inner();
 ```
 - 위의 코드는 클로저의 예시라고 할 수 있는가?
