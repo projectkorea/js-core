@@ -228,7 +228,7 @@ alertFruit(fruits[1]) // banana
 - 콜백 함수의 인자에 대한 제어권을 `addEventListener`가 가졌기 때문에, 콜백 함수를 호출할 때 **첫 번째 인자에 '이벤트 객체'**를 주입하여 과일명이 아니라 이벤트 객체가 출력된다. 이는 bind메서드로 해결한다.
 - fruit라는 변수자체를 이용하지 않기 때문에 클로저를 사용하지 않은 예시이다.
 
-**예시3) bind메서드, 클로저 사용 O**
+**예시3) bind메서드, 클로저 사용 X**
 ```js
 fruits.forEach(function(fruit){
     var $li = document.createElement('li')
@@ -482,6 +482,7 @@ var debounce = function(eventName, func, wait){
         timeoutId = setTimeout(func.bind(self,event), wait)
     }
 }
+
 var mouseHandler = function(e) {
     console.log('move event 처리')
 }
@@ -492,6 +493,7 @@ var wheelHandler = function(e) {
 document.body.addEventListener('mousemove', debounce('move', moveHandler, 500));
 document.body.addEventListener('mousewheel', debounce('wheel', wheelHandler, 700));
 ```
+- 클로저로 처리되는 변수에는 eventName, func, wait, timeoutID가 있다.
 
 
 ### 4) 커링 함수
