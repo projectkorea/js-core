@@ -624,3 +624,11 @@ const thunk = store => next => action => {
     inner();
 ```
 - 위의 코드는 클로저의 예시라고 할 수 있는가?
+
+
+```js
+function RockBand(members) {
+  this.memvers = members
+  this.perform
+}
+```

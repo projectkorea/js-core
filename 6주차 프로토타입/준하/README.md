@@ -1,8 +1,7 @@
 # 06 프로토타입
 
 -   JavaScript는 프로토타입 기반 언어다.
--   클래스 기반 언어는 `상속`을 사용하지만,
--   프로토타입 기반 언어는 **어떤 객체를 `원형`으로 삼고 이를 복제**함으로써 `상속`과 비슷한 효과를 낸다.
+-   클래스 기반 언어는 `상속`을 사용하지만, 프로토타입 기반 언어는 **어떤 객체를 `원형`으로 삼고 이를 복제**함으로써 `상속`과 비슷한 효과를 낸다.
 
 ## 1. Constructor, prototype, instance
 
@@ -19,8 +18,8 @@ var instance = new Constructor();
 
 ![image](https://user-images.githubusercontent.com/76730867/141883614-4a43f4d3-86c6-47f8-beb2-c8b9539093ef.png)
 
-- prototype 객체에는 인스턴스가 사용할 메서드를 저장한다.
-- 인스턴스에서도 숨겨진 프로퍼티 `__proto__`를 통해 prototype에 정의된 메서드들에 접근할 수  있게 된다.
+- `prototype` 객체에 인스턴스가 사용할 메서드를 저장한다.
+- 인스턴스는 숨겨진 프로퍼티 `__proto__`를 통해 prototype에 정의된 메서드들에 접근할 수  있다.
 
 ---
 **참고**
@@ -29,7 +28,7 @@ var instance = new Constructor();
 - ES5.1 명세에서는 `__proto__`가 아니라 `[[prototype]]`로 정의돼 있다.
 ---
 
-**예시) Person.prototype**
+#### 예시) Person.prototype
 
 ```js
 var Person = function (name) {
@@ -46,7 +45,7 @@ Person의 인스턴스들은 `__proto__` 프로퍼티를 통해 getName을 호�
 var suzi = new Person('suzi');
 suzi.__proto__.getName(); // undefined
 ```
-**메서드 호출 결과**: undefined
+**메서드 호출 결과**: undefined ?!?!
 - undefined가 나왔다는 것은 **호출** 할 수 있지만, **반환하는 값**이 잘못됐다는 뜻이다.
 - 이유는 함수를 `메서드`로서 호출할 때는 **메서드 명 바로 앞 객체가 this**가 된다.
 - 따라서 getName 함수 내부에서의 **this**는
@@ -55,7 +54,7 @@ suzi.__proto__.getName(); // undefined
 - name 식별자가 정의되지 않았기 때문에 undefined를 반환한다.
     <br>
 
-**수정 후 코드**
+#### 수정 후 코드
 
 ```js
 var suzi = new Person('suzi');
@@ -63,7 +62,7 @@ suzi.getName(); // suzi
 ```
 
 -   `__proto__`를 생략하면 **this는 instance**가 되어 원하는 값을 출력할 수 있다.
--   `__proto__`는 **생략해도 prototype에 있는 프로퍼티에 접근**할 수 있기 때문이다.
+- ⭐  `__proto__`를 **생략해도 prototype에 있는 프로퍼티에 접근**할 수 있기 때문이다.
 -   `__proto__`의 생략 유무는,  **this가 서로 다른 객체를 바라본다**는 차이가 있다.
 
 ```js
@@ -72,7 +71,7 @@ suzi.getName(); // suzi
 ```
 
 - 1,2 모두 `__proto__`에 있는 getName 메소드에 접근할 수 있다.
-- 따라서 **생성자함수.prototype에 어떤 메서드나 프로퍼티가 있다면, 인스턴스에서도 동일하게 접근**할 수 있다.
+- 따라서 `생성자함수.prototype`에 어떤 메서드나 프로퍼티가 있다면, 인스턴스에서도 동일하게 접근**할 수 있다.
 
 ![image](https://user-images.githubusercontent.com/76730867/141886399-180dd52c-9332-41a7-969f-b2a132c2c33c.png)
 
@@ -339,11 +338,15 @@ var Grade = function() {
         this[i] = args[i]
     }
     this.length = args.length
+    // return this;  
+    // 여기서 리턴되는 this는 this.0, this.1, ..., this.length 가 있는 유사배열객체임
 }
 var g = new Grade(100, 80)
 ```
 ```js
-Grade.prototype = []
+Grade.prototype = [] 
+// Grade.prototype을 배열의 인스턴스로 대입한다. 
+// 배열의 인스턴스는 배열 생성자함수의 prototpye을 바로 접근할 수 있기 때문에 체이닝이 가능하다.
 
 console.log(g) // Grade(2) [100, 80]
 console.log(g.pop) // 80
@@ -351,7 +354,7 @@ g.push(90)
 console.log(g) // Grade(2) [100, 90]
 ```
 - 별개로 분리돼 있던 데이터가 연결되어 하나의 프로토타입 체인 형태를 띠게 된다.
-- Grade의 인스터인 g에서 직접 배열의 메서드를 사용할 수 있게 된다.
+- 인스터인 g에서 직접 배열의 메서드를 사용할 수 있게 된다.
 - g 인스턴스 입장에서는 프로토타입 체인에 따라 g 객체 자신이 지니는 멤버, Grade의 prototype에 있는 멤버, Array.prototype에 있는 멤버, Object.prototype에 있는 멤버에 접근할 수 있게 된다.
 ![](https://user-images.githubusercontent.com/76730867/142762946-55ecbc47-723a-46d6-a21d-8cc86a1fca3a.jpg)
 ![](https://user-images.githubusercontent.com/76730867/142762967-d1c43b92-5f57-456a-87d8-aa3e91eee203.png)
