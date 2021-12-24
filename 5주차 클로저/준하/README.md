@@ -627,8 +627,5 @@ const thunk = store => next => action => {
 
 
 ```js
-function RockBand(members) {
-  this.memvers = members
-  this.perform
-}
+- [quiz.js참고]("https://github.com/projectkorea/study-javascript-core/blob/main/5%EC%A3%BC%EC%B0%A8%20%ED%81%B4%EB%A1%9C%EC%A0%80/%EC%A4%80%ED%95%98/%EC%98%88%EC%A0%9C/quiz.js")
 ```
