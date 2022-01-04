@@ -2,6 +2,7 @@
 - 자바스크립트는 `프로토타입 기반 언어`라 `상속`개념이 존재하지 않는다. 
 - ES5 이하의 `클래스를 흉내내기 위한 구현방식`을 학습해보자.
 - ES6에는 클래스 문법이 추가되어, 간단하게 클래스를 구현할 수 있다.
+- `상속` = `프로토타입 체이닝 참조`
 
 ## 1. 클래스와 인스턴스
 ![](https://user-images.githubusercontent.com/76730867/141934645-785909c0-99ed-4a04-aa0f-c9713428c098.jpg)
@@ -10,42 +11,56 @@
   - 클래스 속성을 지니는, 실존하는 개체,
   - 조건에 부합하는 구체적인 예시라고도 한다.
 - **클래스**: `공통 요소를 지니는 집단`을 분류하기 위한 개념이다.
-- 인스턴스들로부터 공통점을 발견해서 클래스를 정의하는 현실과 달리, **클래스가 먼저 정의돼야만** 그로부터 공통적인 요소를 지니는 개체들을 생성할 수 있다.
-- 클래스는 사용하기에 따라 추상적인 대상도, 구체적인 개체도 될 수 있다.
+  - 인스턴스들로부터 공통점을 발견해서 클래스를 정의하는 현실과 달리, **클래스가 먼저 정의돼야만** 그로부터 공통적인 요소를 지니는 개체들을 생성할 수 있다.
+  - 클래스는 사용하기에 따라 추상적인 대상도, 구체적인 개체도 될 수 있다.
 
 ## 2. 자바스크립트 클래스
 ![](https://user-images.githubusercontent.com/76730867/142974262-86d900ea-bd6e-4676-b570-0b75bebe9cea.jpg)
 
 
-**예시) 스테틱 메서드 구현**
+**예시) 인스턴스에서는 스태틱 메서드를 참조할 수 없다.**
 ```js
 // 생성자
 var Rectangle = function(width, height) {
-    this.width = width
-    this.height = height
+    ...
+}
+
+// 스태틱 메서드
+Rectangle.isRectangle = function(instance) {
+    ...
 }
 
 // (프로토타입)메서드
 Rectangle.prototype.getArea = function() {
-    return this.width * this.height
+    ...
 }
-
-// 스테틱 메서드
-Rectangle.isRectangle = function(instance) {
-    return instance instanceof Rectangle && instance.width >0 && instance.height > 0
-}
-
-var rect1 = new Rectangle(3,4)
-console.log(rect1.getArea())              // 12
-console.log(rect1.isRectangle(rect1))     // Error
-console.log(Rectangle.isRectangle(rect1)) // true
 ```
+
+```js
+var rect = new Rectangle(3,4)
+rect.getArea())              // OK
+rect.isRectangle(rect1))     // Error!!! 인스턴스는 스태틱 메서드를 참조할 수 없다.
+Rectangle.isRectangle(rect1)) // OK
+```
+
+---
 
 ## 3. 클래스 상속
 
-### 1) 클래스에 있는 값이 인스턴스의 동작에 미치는 경우
-#### 1-1) Array 내장 클래스를 상속하는 Grade 클래스
-![](https://user-images.githubusercontent.com/76730867/142976023-2472cb58-e47d-4ae0-a76d-57d6f2e89d9f.jpg)
+
+### 1) 클래스가 인스턴스에 영향을 미치는 경우
+
+<img src="https://user-images.githubusercontent.com/76730867/142976023-2472cb58-e47d-4ae0-a76d-57d6f2e89d9f.jpg" width="500px"/>
+
+#### 1-1) Array를 상속할 때의 `.length`
+
+- 이해하기 힘들었던 문장
+```
+문장1) Array / 내장 클래스를 / 상속하는 /  Grade / 클래스
+비유1) 김준하 / 사람을       / 태우는 /  벤츠 / 승용차 
+해설1) Array는 JS에서 제공하는(=내장된) 클래스(=생성자 함수)이다.
+```
+
 ```js
 var Grade = function () {
     var args = Array.prototype.slice.call(arguments);
@@ -54,8 +69,12 @@ var Grade = function () {
     }
     this.length = args.length;
 };
+// 유사배열객체 만드는 생성자 함수
 
 Grade.prototype = [];
+// Array의 인스턴스에 __proto__를 참조할 수 있다는 점을 활용해,
+// Grade에서 Array를 상속하는 코드
+
 var g = new Grade(100, 80);
 ```
 - 프로토타입으로 클래스를 모방하면 다음과 같은 문제가 생긴다.
@@ -63,10 +82,13 @@ var g = new Grade(100, 80);
 ```js
 g.push(90) // Grade {0:100, 1:80, 2:90, length:3}
 delete g.length
-g.push(70) // Grade {0:70, 1:80, 2:90, length:1}
+g.push(70) // Grade {0:70, 1:80, 2:90, length:0}
 ```
-- g.length는 삭제되고, `g.__proto__.length`를 참조한다.
-- g 인스턴스는 객체이기 때문에 length 프로퍼티가 삭제되고, 내장객체인 배열 인스턴스의 length 프로퍼티는 `configurable:false`라서 삭제가 안되기 때문에 `g.__proto__length`, 즉, `[].length`를 참조하게 된다.
+
+- `g.length`: 인스턴스 g의 프로퍼티
+- `g.__proto__.length`: 상속받은 Array 클래스의 프로퍼티
+- `g.length`는 삭제되지만, `g.__proto__.length`는 `configurable:false`이다. 
+- 따라서 `g.length`는 `g.__proto__.length` 즉, `[].length`를 참조하게 된다.
 
 
 ```js

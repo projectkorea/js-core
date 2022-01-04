@@ -624,3 +624,8 @@ const thunk = store => next => action => {
     inner();
 ```
 - 위의 코드는 클로저의 예시라고 할 수 있는가?
+
+
+```js
+- [quiz.js참고]("https://github.com/projectkorea/study-javascript-core/blob/main/5%EC%A3%BC%EC%B0%A8%20%ED%81%B4%EB%A1%9C%EC%A0%80/%EC%A4%80%ED%95%98/%EC%98%88%EC%A0%9C/quiz.js")
+```
