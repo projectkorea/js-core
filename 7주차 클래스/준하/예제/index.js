@@ -23,6 +23,5 @@ Grade.prototype = [];
 var g = new Grade(100, 80);
 g.push(90);
 
-delete g.length;
 g.push(70);
 console.log(g);
