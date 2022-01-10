@@ -11,3 +11,5 @@ ork.face = 'beautiful';
 
 console.log(`ork의 face스펙입니다. ${ork.face}`);
 console.log(`human의 face스펙입니다. ${human.face}`);
+
+arr1.filter((v) => !v);

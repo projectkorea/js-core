@@ -199,6 +199,7 @@ console.log(minotaur === monster) // false
 ### 4) 깊은 복사
 
 - 얕은 복사는 바로 아래 단계의 값만 복사하는 방법이고, 깊은 복사는 내부의 모든 값들을 하나하나 찾아서 전부 복사하는 방법이다. 
+- 어떤 객체를 복사할 때 객체 내부의 모든 값을 복사해서 완전히 새로운 데이터를 만들고자 할때, 객체의 프로퍼티 중에서 그 값이 기본형 데이터일 경우에는 그대로 복사하면 되지만, 참조형 데이터라면 다시 그 내부의 프로퍼티를 복사해야한다.
 
 ```js
 var monster = {
@@ -206,33 +207,135 @@ var monster = {
   skills:['bite','rush','rage']
 }
 
-var minotaur 
+var minotaur = copyObject(monster)
+minotaur.skills=copyObject(monster.skills)
+```
+
+#### (1) 재귀함수를 활용한 깊은 복사
+
+- 매개변수가 object면 prop의 key를 생성하고, 매개변수가 object가 아니면 그대로 다시 반환하여 value를 할당한다.
+
+```js
+var copyObjectDeep = function (target) {
+  var result = {}
+  if (typeof target ==='object' && target!==null){
+    for(var prop in target){
+      result[prop] = copyObjectDeep(target[prop])
+    }
+  } else{
+    return target
+  }
+  return result
+}
 ```
 
 
+#### (2) JSON을 활용한 깊은 복사
+
+- 객체를 문자열로 전환했다가 다시 JSON객체로 바꾸는 방법이다.
+- httpRequest로 받은 데이터를 저장한 객체를 복사할 때 순수한 정보만 다룰 때 활용하기 좋다
+
+```js
+var copyObjectViaJSON = function(target){
+  return JSON.parse(JSON.stringify(target))
+}
+```
+
+- array 타입의 데이터도 객체 타입으로 바뀌는 (1)번 방법과 달리, JSON을 활용한 방법은 array 그대로 복사된다.
+
+## 5. `undefined` & `null`
+
+### 1.`undefined`
+
+- `undefined`는 자바스크립트 엔진이 사용자가 값을 넣었으리라고 예상했지만 그렇지 않은 경우에 할당해주는 값이다.
+
+##### (1) 값을 대입하지 않은 변수
+
+- 식별자가 데이터 영역의 메모리 주소를 지정하지 않은 경우
+
+```js
+var a;
+console.log(a) // undefined
+```
+
+##### (2) 객체 내부의 존재하지 않은 프로퍼티
+
+- 참고: 객체 내부의 존재하지 않은 **메소드**는 호출하면 오류가 발생한다.
+
+```js
+var obj = {
+  a : 1
+}
+console.log(obj.b) // undefined
+```
+
+##### (3) return문이 없는 함수의 실행 결과
+
+```js
+var func = function() {};
+var c = func();
+console.log(c) // undefined
+```
+
+#### 2) empty
+
+- 비어있는 배열의 요소는 `undefined`, 대신 `empty`로 할당한다.
+
+```js
+var arr1 = []
+arr1.length = 3
+
+var arr2 = new Array(3)
+
+console.log(arr1) // [empty * 3]
+console.log(arr2) // [empty * 3]
+```
+
+##### empty는 배열 메서드의 순회대상에서 제외된다.
+- `empty`인 요소는 `비어있는 요소`라는 뜻을 내포하고 있어 배열 메서드의 순회대상에서 제외된다.
+- 따라서 비어있는 요소에 `undefined`를 할당하면, 값이 들어가 있는 것으로 간주하여 배열 메서드의 순회대상에 포함된다.
+
+```js
+var arr1 = [undefined, 999] // [undefined, 999]
+var arr2 = [,, 999] // [empty, 999]
+
+arr1.forEach((v,i)=>console.log(v,i)) // undefined,0 / 999,1
+arr2.forEach((v,i)=>console.log(v,i)) // (생략) / 999, 2
+// `empty`인 요소는 인덱스는 갖고 있다.
+
+arr1.map((v,i)=> v+i) // [Nan, 1000] (undefined+1 = NAN)
+arr2.map((v,i)=> v+i) // [empty × 2, 1001]
+
+[,undefined,null,0,false,].filter((v)=>!v) // [undefined,null,0,false]
+// filter 메서드는 반환값이 true인 경우에만 그 배열의 요소를 반환한다.
+```
+
+- 존재하지 않는 프로퍼티에 순회할 수 없는 이유는 배열도 객체와 마찬가지로 특정 인덱스에 값을 지정할 때 비로소 빈 공간을 확보하고 인덱스를 이름으로 지정하고 데이터의 주솟값을 저장하는 동작을 한다.
+- 즉, **값이 지정되지 않은 인덱스는 아직은 존재하지 않은 프로퍼티**이다.
+- 여기서 `undefined`는 비록 **비어있음**을 의미하긴 하지만 하나의 값으로 동작하기 때문에 이때의 프로퍼티나 배열의 요소는 고유의 키값(인덱스)가 실존하게 되므로 순회할 수 있다.
 
 
+### 2.`null`
+
+- 비어있는 값을 명시적으로 넣다는 것을 강조하기 위해 사용한다.
+- 본래의 의미에 따라 사용자가 없음을 표현하기 위해선 `undefined`대신 `null`을 사용해야한다.
+- `typeof undefined` = `object`이기 때문에 `null`값을 체크하기 위해선 `typeof`를 사용하지 않고, `===` 일치연산자를 사용한다.
 
 
-- 객체를 JSON문법으로 표현된 문자열로 전환했다가ㅡ 다시 JSON객체로 바꾸는 것
-- httpRequest로 받은 데이털를 저장한 객체를 복사할 때 순수한 정보만 다룰 때 활용하기 좋다
-- 메서드, 숨겨진 프로퍼티(__proto_), getter, setter 프로퍼티는 무시된다.
+## 6. 정리
 
-## 5. Undefined와 null
-
-- 배열은 무조건 length 프로퍼티의 개수만큼 빈 공간을 확보하고 각 공간에 인덱스에 값을 지정할 것이라고 생각하기 쉽다
-- 실제로는 객체와 마찬가지로 특정 인덱스에 값을 지정할 때 비로소 빈 공간을 확보하고 인덱스를 이름으로 지정하고 데이터의 주솟값을 저장하는 동작을 한다.
-- undefined와 null을 구분하려면, 비어있는 값을 명시적으로 넣을 때는 null을 자바스크립트 엔진이 값을 할당할 수 없거나 데이터 영역의 메모리 주소를 지정하지 않은 식별자에 할당하는 것으로 한다.
-
-
-
+- 변수는 변경 가능한 데이터가 담길 수 있는 공간이고, 식별자는 그 변수의 이름을 말한다.
+- 변수를 선언하면 컴퓨터는 메모리의 빈 공간에 식별자를 저장하고, 자동으로 `undefined`를 할당한다. 
+  1) 변수에 기본형 데이터를 할당하려고 하면 별도의 공간에 데이터를 저장하고, 그 공간의 주소를 변수의 값 영역에 할당한다.
+  2) 참조형 데이터를 할당하는 경우는 내부 프로퍼티들이 들어갈 변수 영역을 별도로 확보 후 그 주소를 변수에 연결한다. 그 다음 변수 영역에 각 프로퍼티의 식별자를 저장하고, 각 데이터를 별도의 공간에 저장해서 그 주소를 식별자들과 매칭한다. 
+- 할당 과정에서 기본형과 참조형의 차이의 이유는 참조형 데이터가 여러개의 프로퍼티를 모은 **그룹**이기 때문이다.
 ---
 
-**퀴즈**
+## 퀴즈
 
- ``` var object1 = {'a':['b','c',['d','e',['f','g']]]}```  를 복사하려면 재귀함수가 몇 번필요할까? 
+1. ``` var object1 = {'a':['b','c',['d','e',['f','g']]]}```  를 복사하려면 재귀함수가 몇 번필요할까? 
 
-```
+```js
 var copyObectDeep = function(target) {
     var result = {}
     if (typeof target === 'object' && target !== null){
@@ -246,28 +349,22 @@ var copyObectDeep = function(target) {
 }
 var object2 = copyObjectDeep(object1)
 ```
+
 ---
---> 10번, 배열의 요소도 각각 실행됨.
 
-(1) object1
+답: 10번
 
-(2) ['b','c',['d','e',['f','g']]]
-
-(3) 'b' -> (2)의 prop은 배열의 인데스이기 때문에, target[0]='b'가 됌
-
-(4) 'c'
-
-(5) ['d','e',['f','g']]
-
-(6) 'd'
-
-(7) 'e'
-
-(8) ['f','g']
-
-(9) 'f'
-
-(10) 'g'
+- 배열의 요소는 key를 인덱스로 갖기 때문에 참고하라.
+1. `copyObjectDeep(object1) `: object1
+2. `copyObjectDeep(object1[0])`:['a','b',['d','e',['f','g']]]
+3. `copyObjectDeep(object1[0][0])`: 'b'
+4. `copyObjectDeep(object1[0][1])`: 'c'
+5. `copyObjectDeep(object1[0][2])`: ['d','e',['f','g']]
+6. `copyObjectDeep(object1[0][2][0])`: 'd'
+7. `copyObjectDeep(object1[0][2][1])`: 'e'
+8. `copyObjectDeep(object1[0][2][2])`: ['f','g']
+9. `copyObjectDeep(object1[0][2][2][0])`: 'f'
+10. `copyObjectDeep(object1[0][2][2][1])`: 'g'
 
 
 ![image](https://user-images.githubusercontent.com/76730867/137319809-0f2fb0a3-ceec-4c69-9fa0-11cee3b14ea9.png)
