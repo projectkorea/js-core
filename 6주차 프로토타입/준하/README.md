@@ -268,39 +268,30 @@ arr(.__proto__)(.__proto__).hasOwnProperty(2)
 
 ```js
 var arr = [1, 2];
-Array.prototype.toString.call(arr); // 1,2
-Object.prototype.toString.call(arr); // [Object Array]
 arr.toString(); // 1,2
+// Array.prtotype.toString() 사용
 
 arr.toString = function () {
     return this.join('_');
 };
 
 arr.toString(); // 1_2
+// arr.toString() 사용
 ```
 
 **정리**
+-   어떤 메서드를 실행하면, 찾을 때까지 `__proto__`를 거듭해 검색해서 실행한다.
 -   데이터의 `__proto__` 내부의 `__proto__`가 연쇄적으로 이어진 것을 **프로토타입 체인**이라고 한다.
 -   이 체인을 따라가며 검색하는 것을 **프로토타입 체이닝**이라고 한다.
--   어떤 메서드를 실행하면, 찾을 때까지 `__proto__`를 거듭해 검색해서 실행한다.
 
+#### (2) 객체 전용 메서드
 
+- 어떤 생성자 함수든 `prototype`는 반드시 객체이기 때문에 Object.`prototype`은 언제나 프로토타입 체인의 최상단에 존재한다. 
+- 그 결과 `Object.prototype`에 메서드를 정의하면 모든 데이터 타입에서 메서드를 사용할 수 있게 된다.
+- 따라서 객체만을 대상으로 동작하는 객체 전용 메서드들은 `Object.prototype`이 아닌 Object에 스태틱 메서드로 부여해야한다.
+- `Object.prototype`이 참조형 데이터뿐 아니라 기본형 데이터조차 `__proto__`에 반복 접근함으로써 도달할 수 있는 최사위 존재이기 때문에 객체 한정 메서드들은 `Object.prototype`이 아닌 `Object`에 직접 부여해야 한다.
+- - 반대로 같은 이유에서 `Object.prototype`에는 어떤 데이터에서도 활용할 수 있는 범용적인 메서드가 있다. `toString`, `hasOwnProperty`, `valueOf`, `isPrototypeOf` 은 모든 변수가 마치 자신의 메서드인 것처럼 호출할 수 있다.
 
----
-
-### 참고
-![](https://user-images.githubusercontent.com/76730867/142761370-ea7150e8-3bce-4923-b851-2daf050e4ab8.jpg)
-
-- instance.constructor.constructor => Function 생성자 함수
-
-
----
-
-### 3) 객체 전용 메서드의 예외사항
-- 어떤 생성자 함수든 prototype은 객체이기 때문에 Object.prototype은 언제나 프로토타입 체인의 최상단이 된다.
-- 객체에서만 사용할 메서드를 Object.prototype 내부에 정의한다면, 다른 데이터 타입도 해당 메서드를 사용할 수 있게 된다.
-- 따라서 객체만을 대상으로 동작하는 객체 전용 메서드들은, Object에 스태틱 메서드로 부여해야 한다. 
-- 반대로 같은 이유에서 Object.prototype에는 어떤 데이터에서도 활용할 수 있는 범용적인 메서드가 있다. toString, hasOwnPRoperty, valueoF, isPrototypeOf 등은 모든 변수가 마치 자신의 메서드인 것처럼 호출할 수 있다.
 
 ```js
 var _proto = Object.create(null);
@@ -313,14 +304,14 @@ obj.a = 1
 
 console.log(obj) //{a, [__proto__,[getValue]}
 ```
-- Object.create(null)은 `__proto__`가 없는 객체를 생성합니다.
-- 이 방식으로 만든 객체는 일반적인 데이터에서 반드시 존재하던 내장(built-in) 메서드 및 프로퍼티들이 제거됨으로써 기본 기능에 제약이 생ㄱ긴 대신, 객체 자체의 무게가 가벼워짐으로써 성능상 이점이 생긴다. 
-
+- `Object.create(null)`은 `__proto__`가 없는 객체를 생성한다.
+- 이 방식으로 만든 객체는 일반적인 데이터에서 반드시 존재하던 내장(built-in) 메서드 및 프로퍼티들이 제거됨으로써 기본 기능에 제약이 생긴 대신, 객체 자체의 무게가 가벼워짐으로써 성능상 이점이 생긴다. 
 
 ### 4) 다중 프로토타입 체인
-- 자바스크립트의 기본 내장 데이터 타입들은 모두 프로토타입 체인이 1단계(객체)이거나, 2단계(그 외 나머지)로 끝난다.
-- 사용자가 새롭게 만든다면 그 이상도 가능하다.
+
+- 자바스크립트의 기본 내장 데이터 타입들은 모두 프로토타입 체인이 1단계(객체)이거나, 2단계(그 외 나머지)로 끝난다. (사용자가 새롭게 만든다면 그 이상도 가능하다.)
 - 대각선 `__proto__`를 연결해나가면 무한대로 체인 관계를 이어나가, 다른 언어의 클래스와 비슷하게 동작하는 구조를 만들 수 있다. 
+
 ```js
 var Grade = function() {
     var args = Array.prototype.slice.call(arguments)
@@ -329,37 +320,39 @@ var Grade = function() {
     }
     this.length = args.length
     // return this;  
-    // 여기서 리턴되는 this는 this.0, this.1, ..., this.length 가 있는 유사배열객체임
+    // 여기서 리턴되는 this는 this.0, this.1, ..., this.length 가 있는 유사배열객체이다.
 }
-var g = new Grade(100, 80)
+var g1 = new Grade(100, 80)
 ```
+
 ```js
 Grade.prototype = [] 
-// Grade.prototype을 배열의 인스턴스로 대입한다. 
-// 배열의 인스턴스는 배열 생성자함수의 prototpye을 바로 접근할 수 있기 때문에 체이닝이 가능하다.
+var g1 = new Grade(100, 80)
 
-console.log(g) // Grade(2) [100, 80]
 console.log(g.pop) // 80
 g.push(90)
 console.log(g) // Grade(2) [100, 90]
 ```
+
+- `[]`는 `[].__proto__`, `Array.prototype` 순서로 참조하여, 인스터스인 `g`에서 직접 배열의 메서드를 사용할 수 있게 된다.
 - 별개로 분리돼 있던 데이터가 연결되어 하나의 프로토타입 체인 형태를 띠게 된다.
-- 인스터인 g에서 직접 배열의 메서드를 사용할 수 있게 된다.
-- g 인스턴스 입장에서는 프로토타입 체인에 따라 g 객체 자신이 지니는 멤버, Grade의 prototype에 있는 멤버, Array.prototype에 있는 멤버, Object.prototype에 있는 멤버에 접근할 수 있게 된다.
+- g 인스턴스 입장에서는 프로토타입 체인에 따라 g 객체 자신이 지니는 멤버, `Grade.prototype`에 있는 멤버, `Array.prototype`에 있는 멤버, `Object.prototype`에 있는 멤버에 접근할 수 있게 된다.
+
 ![](https://user-images.githubusercontent.com/76730867/142762946-55ecbc47-723a-46d6-a21d-8cc86a1fca3a.jpg)
 ![](https://user-images.githubusercontent.com/76730867/142762967-d1c43b92-5f57-456a-87d8-aa3e91eee203.png)
+
 ## 정리
 
--   어떤 생성자 함수를 new 연산자와 함께 호출하면 Consturctor에서 정의된 내용을 바탕으로 새로운 인스턴스가 생성된다.
--   이 인스턴스에는 **proto**라는, Constructor의 prototype 프로퍼티를 참조하는 프로퍼티가 자동으로 부여된다.
--   **proto**는 생략 가능한 속성이기 때문에, 인스턴스는 Constructor.prototype의 메서드를 마치 자신의 메서드인 것처럼 호출할 수 있다.
-    <br>
--   Constructor.prototype에는 constructor라는 프로퍼티가 있다.
--   이는 생성자 함수 자신을 가리킨다.
--   이 프로퍼티는 인스턴스가 자신의 생성자 함수가 무엇인지를 알고자 할 때 필요한 수단이다.
-    <br>
--   직각삼각형의 대각선 방향, 즉 **proto** 방향을 계속 찾아가면 최종적으로 Object.prototype에 당도한다.
--   이런식으로 **proto**안에 다시 **proto**를 찾아가는 과정을 프로토타입 체이닝이라고 한다.
--   이를 통해 각 프로토타입 메서드를 자신의 것처럼 호출할 수 있다.
--   이때 접근 방식은 자신으로부터 가장 가까운 대상부터 점차 먼 대상으로 나아가며, 원하는 값을 찾으면 검색을 중단한다.
--   Object.prototype에는 모든 데이터 타입에서 사용할 수 있는 범용적인 메서드만이 존재하며, 객체 전용 메서드는 여느 데이터 타입과 달리 Object 생성자 함수에 스태틱하게 담겨있다.
+- **`__proto__`**
+  -  생성자 함수를 new 연산자와 함께 호출하면 Consturctor에서 정의된 내용을 바탕으로 새로운 인스턴스가 생성된다.
+  -  이 인스턴스에는 `__proto__`라는, `Constructor.prototype`를 참조하는 프로퍼티가 자동으로 부여된다.
+  - `__proto__`는 생략 가능한 속성이기 때문에, 인스턴스는 `Constructor.prototype`의 메서드를 마치 자신의 메서드인 것처럼 호출할 수 있다.
+- **`constructor`**
+  -   `Constructor.prototype`에는 `constructor`라는 프로퍼티가 있다.
+  -   이는 생성자 함수 자신을 가리킨다.
+  -   이 프로퍼티는 인스턴스가 자신의 생성자 함수가 무엇인지를 알고자 할 때 필요한 수단이다.
+- **프로토타입 체이닝**
+  -   직각삼각형의 대각선 방향, 즉 **proto** 방향을 계속 찾아가면 최종적으로 `Object.prototype`에 당도한다.
+  -   이런식으로 **proto**안에 다시 **proto**를 찾아가는 과정을 프로토타입 체이닝이라고 한다. 이를 통해 각 프로토타입 메서드를 자신의 것처럼 호출할 수 있다.
+  -   이때 접근 방식은 자신으로부터 가장 가까운 대상부터 점차 먼 대상으로 나아가며, 원하는 값을 찾으면 검색을 중단한다.
+  -   `Object.prototype`에는 모든 데이터 타입에서 사용할 수 있는 범용적인 메서드만이 존재하며, 객체 전용 메서드는 여느 데이터 타입과 달리 Object 생성자 함수에 스태틱하게 담겨있다.
