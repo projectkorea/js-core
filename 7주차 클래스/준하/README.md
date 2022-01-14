@@ -247,6 +247,7 @@ SubClass.prototype.constructor = SubClass
 ```js
 var extendClass = function(SuperClass, SubClass, subMethods){
   // ...
+  // 기능추가
   SubClass.prototype.super = function(propName) {
     var self = this;
     
@@ -260,6 +261,7 @@ var extendClass = function(SuperClass, SubClass, subMethods){
     // 메서드가 아니고, 프로퍼티일 경우 프로퍼티 조기 반환
     if (typeof prop !== 'function') return prop;
 
+    // 메서드 반환
     return function() {
       return prop.apply(self,arguments);
     }
@@ -297,7 +299,7 @@ var Square = extendClas(Rectangle,
 ```js
 var sq = new Square(10);
 sq.getArea()          // size is : 100 // SubClass의 메서드
-sq.super.('getArea')  // 100           // SuperClass의 메서드
+console.log(sq.super('getArea')())  // 100           // SuperClass의 메서드
 ```
 
 
