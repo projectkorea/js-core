@@ -15,7 +15,7 @@
 |**4. 콜백 함수**|[준하][junha-04]| [지원][jiwon-04]|
 |**5. 클로저**|[준하][junha-05]| [지원][jiwon-05]|
 |**6. 프로토타입**|[준하][junha-06]| [지원][jiwon-06]|
-|**7. 클래스**|[준하][junha-07]| [지원][jiwon-07]|
+|**7. 클래스**|[프로토타입이 클래스를 흉내내다][junha-07]| [지원][jiwon-07]|
 
 [junha-01]:https://github.com/projectkorea/study-javascript-core/tree/main/1%EC%A3%BC%EC%B0%A8%20%EB%8D%B0%EC%9D%B4%ED%84%B0%ED%83%80%EC%9E%85/%EC%A4%80%ED%95%98
 [junha-02]:https://github.com/projectkorea/study-javascript-core/tree/main/2%EC%A3%BC%EC%B0%A8%20%EC%8B%A4%ED%96%89%EC%BB%A8%ED%85%8D%EC%8A%A4%ED%8A%B8/%EC%A4%80%ED%95%98
