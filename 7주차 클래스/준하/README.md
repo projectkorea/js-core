@@ -56,11 +56,10 @@ Rectangle.isRectangle(rect1)) // OK
 - `Array`클래스를 상속하는 `Grade` 클래스
 
 ```js
-
 var Grade = function() {
   var args = Array.prototype.slice.call(arguments);
-  for(var i = 0; args.length; i++){
-    this[i] = args[i]
+  for(var i = 0; i<args.length; i++){
+    this[i] = args[i];
   }
   this.length = args.length
 }
@@ -386,5 +385,3 @@ var Square = class extends Rectangle {
    2) 빈 함수(Bridge)를 활용하는 방법
    3) `Object.create` 이용 방법
    - 세 가지 방법 모두 `constructor` 프로퍼티를 원래 생성자 함수를 바라보도록 조정해야한다.
-
-
