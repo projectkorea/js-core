@@ -1,13 +1,39 @@
-var foo = {
-  bar: function () {
-    return this.baz;
-  },
-  baz: 1,
+var globalVariable1 = 1;
+const globalVariable2 = 2;
+
+const outerConst = function () {
+  console.log();
 };
 
-(function () {
-  return typeof arguments[0]();
-})(foo.bar);
+var outerVar = function () {
+  console.log();
+};
+
+function outerFunc() {
+  console.log();
+}
+
+function outer() {
+  let outerVariable = 999;
+  function inner() {
+    const innerVariable = 1;
+    outerVariable += 1;
+  }
+  inner();
+}
+
+outer();
+
+// var foo = {
+//   bar: function () {
+//     return this.baz;
+//   },
+//   baz: 1,
+// };
+
+// (function () {
+//   return typeof arguments[0]();
+// })(foo.bar);
 
 // var a = 1;
 // var outer = function () {

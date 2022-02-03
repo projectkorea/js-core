@@ -628,4 +628,4 @@ const thunk = store => next => action => {
 
 ```js
 - [quiz.js참고]("https://github.com/projectkorea/study-javascript-core/blob/main/5%EC%A3%BC%EC%B0%A8%20%ED%81%B4%EB%A1%9C%EC%A0%80/%EC%A4%80%ED%95%98/%EC%98%88%EC%A0%9C/quiz.js")
-```
+- [quiz 참고2]("https://velog.io/@hw8129/%EB%B0%94%EB%8B%90%EB%9D%BC%EC%BD%94%EB%94%A9-%ED%94%84%EB%A0%99-Closure-%EC%98%88%EC%A0%9C-%EB%AA%A8%EC%9D%8C")
