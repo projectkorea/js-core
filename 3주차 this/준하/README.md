@@ -28,8 +28,7 @@
   console.log(this == global) //true
   ```
   
-- **JS의 모든 변수는 특정 객체의 프로퍼티이다**
-  전역변수를 선언하면 JS엔진은 이를 전역객체의 프로퍼티로 할당한다. 
+#### `var`로 선언한 전역 변수는 전역객체의 프로퍼티로 할당된다.
   ```js
   var a =1
   console.log(a)            // 1
@@ -185,29 +184,23 @@ obj1.outer()
 ```
 **실행 결과**
 ```
-(1) obj1
+(1) {outer:f} obj1
 (2) 전역객체(Window)
-(3) obj2
-  
-출력 결과를 보면 실제로는 아래와 같다.
-(1) {outer:f} === obj1
-(2) Window {parent:...} === 전역객체
-(3) {innerMethod:f} === obj2
-이것은 obj1, window, obj2를 출력한 것과 동일한 결과다.
+(3) {innerMethod:f} obj2
 ```
   
-- (2)은 함수로서 호출한 것이기 때문에 this가 지정되지 않았고, 자동으로 스코프 체인상의 최상위 객체인 전역객체가 바인딩 된다.
+- (2)는 함수로서 호출한 것이기 때문에 this가 지정되지 않았고, 자동으로 스코프 체인상의 최상위 객체인 전역객체가 바인딩 된다.
 - (3)은 (2)와 같은 함수를 사용했지만, 메서드로서 호출했기 때문에 바인딩되는 this의 대상이 obj2가 된 것이다.
-→ this 바인딩에 관해서는 함수를 실행하는 당시의 주변 환경(**메서드 내부인지, 함수 내부인지)는 중요하지 않다**. 오직 해당 함수를 **호출하는 구만 앞에 점 또는 대괄호 표기가 있는지 없는지가 관건**이다. ✨✨✨✨✨✨
+→ this 바인딩에 관해서는 함수를 실행하는 당시의 주변 환경(**메서드 내부인지, 함수 내부인지)는 중요하지 않다**. 오직 해당 함수를 **호출하는 구만 앞에 점 또는 대괄호 표기가 있는지 없는지가 관건**이다. ✨✨✨
 
   
 #### 3) 메서드 내부 함수에서의 this를 우회하는 방법
   
 - 호출 주체가 없을 때 자동으로 전역객체를 바인딩 하지 않는 방법이 없을까?
 - 호출 당시 주변 환경의 this를 그대로 상속받아 사용할 수 있었으면 좋겠다. 
-- 변수를 검색하면 우선 가장 가까운 스코프의 L.E를 찾고 상위 스코프를 탐색하듯, this 역시 
-- 현재 컨텍스트의 바인딩된 대상이 없으면 직전 컨텍스트의 this를 바라보도록 하고 싶다.
-- **ES5에서 우회하는 방법**
+- 💛변수를 검색하면 우선 가장 가까운 스코프의 L.E를 찾고 상위 스코프를 탐색하듯, `this` 역시 현재 컨텍스트의 바인딩된 대상이 없으면 직전 컨텍스트의 this를 바라보도록 하고 싶다.
+
+####  ES5에서 우회하는 방법
 ```js
 var obj = {
     outer:function() {
@@ -217,7 +210,7 @@ var obj = {
         }
         innerFunc1()
   
-        var self = this
+        var self = this // 이 부분
         var innerFunc2 = function () {
             console.log(self)   // (3) {outer : f}
         }
@@ -229,7 +222,8 @@ obj.outer()
 - 상위 스코프의 this를 따로 저장해서 내부함수에서 활용하려는 수단이다.
 <br>
 
-- **ES6에서 우회하는 방법**
+#### ES6에서 우회하는 방법
+
 ```js
 var obj ={
     outer: function() {
@@ -249,8 +243,9 @@ obj.outer()
   
 - 함수 A의 제어권을 다른 함수 또는 메서드 B에게 넘겨주는 경우,
 A를 콜백함수 라고 한다. 
-- 함수 A는 함수 B의 내부 로직에 따라 실행되며, this역시 함수 B내부 로직에서 정한 규칙에 따라 값이 결정된다.
-- **콜백 함수도 함수이기 때문에 this가 전역객체를 참조**하지만, 제어권을 받은 함수에서 콜백함수에 별도로 this가 될 대상을 지정할 경우 그 대상을 참조한다. 
+- 함수 A는 함수 B의 내부 로직에 따라 실행되며, `this`역시 함수 B내부 로직에서 정한 규칙에 따라 값이 결정된다.
+- **콜백 함수도 함수이기 때문에 this가 전역객체를 참조**한다. 
+- 하지만 제어권을 받은 함수에서 콜백함수에 별도로 `this`가 될 대상을 지정하는 경우에 한정하여, 그 대상을 참조한다. 
   
 ```js
 // (1)
@@ -275,17 +270,16 @@ document.body.querySelector('#a')
   
 ###  1-5 생성자 함수 내부에서의 this
   
+#### 생성자 함수란?
 - 생성자 함수는 **공통된 성질을 지니는 객체들을 생성**하는 데 사용되는 함수다. 
 - 객체지향 언어에서는 생성자를 클래스, 클래스를 통해 만드는 객체를 인스턴스라고 한다. 
 - **생성자는 구체적인 인스턴스를 만들기 위한 일종의 틀이다.**
 - 이 틀에는 해당 클래스의 공통 속성들이 미리 준비돼있고, 여기에 구체적인 인스턴스의 개성을 더해 개별 인스턴스를 만들 수 있다.
-<br>
-- 자바스크립트는 함수에 생성자로서의 역할을 함께 부여했다.
-- new 명령어와 함께 함수를 호출하면 해당 함수가 생성자로서 동작한다.
+
+#### 함수 앞에 new 키워드를 붙이면 생성자로써 동작한다.
+- `cosnt 인스턴스 = new 생성자()`
 - 어떤 함수가 생성자 함수로서 호출된 경우 내부에서의 **this는 곧 새로 만들 구체적인 인스턴스 자신**이 된다. 
-<br>
-- 생성자 함수를 호출하면, `__proto__` 객체를 만든다.
-- 이를 통해 미리 준비된 공통 속성 및 개성을 해당 객체에 부여하여, 구체적인 인스턴스가 만들어진다.
+- 생성자 함수를 호출하면, `__proto__` 객체를 만든다. 이를 통해 미리 준비된 공통 속성 및 개성을 해당 객체에 부여하여, 구체적인 인스턴스가 만들어진다.
   
 **인스턴스의 this 예시**
 ```js
@@ -323,7 +317,7 @@ Cat {sort:'고양이', name:'나비', age:5}
 Function.prototype.call(thisArg[,arg1[,arg2[,...]]])
 ```
   
-**call 메서드 예제1**
+#### call 메서드 예제1
 ```js
 var func = function (a,b,c) {
     console.log(this, a, b, c)
@@ -339,7 +333,7 @@ func.call({x:1}, 4,5,6)  // {x:1} 4 5 6
   2. 첫 번째 인자를 this로 바인딩한다.
   3. 이후의 인자들을 호출할 함수의 매개변수로 한다.
   
-**call 메서드 예제2**
+#### call 메서드 예제2
 ```js
 var obj = {
     a:1,
@@ -360,13 +354,19 @@ obj.method.call({a:4},5,6) // 4 5 6
 ```js
 Function.prototype.apply(thisArg[,argsArray])
 ```
-  
+
+#### apply 메서드 예제1
+
 ```js
 var func = function(a, b, c){
     console.log(this, a, b, c)
 }
 func.apply({x:1}, [4,5,6])   // {x:1} 4 5 6
-  
+```
+
+#### apply 메서드 예제2
+
+```js
 var obj = {
     a:1,
     method:function(x,y) {
@@ -463,7 +463,7 @@ var newStr = Array.prototype.map.call(str, [
 console.log(newStr)  //"a0b1c2 3d4e5f6" 
 ```
   
-- 문자열의 경우 length 프로퍼티가 읽기 전용이기 때문에 원본 문자열에 변경을 가하는 메서드(push, pop, shift, upshift, splice 등)는 에러를 던진다.
+- 문자열의 경우 length 프로퍼티가 **읽기 전용**이기 때문에 원본 문자열에 변경을 가하는 메서드(push, pop, shift, upshift, splice 등)는 에러를 던진다.
 - concat처럼 대상이 반드시 배열이어야 하는 경우에는 에러는 나지 않지만 원하는 결과를 얻을 수 없다.
   
 **예시 1-5) Array.from()메서드 from ES6**
@@ -632,7 +632,7 @@ console.log(bindFunc.name)  // bound func
   
 - 콜백 함수를 인자로 받는 메서드 중 일부는 추가로 this로 지정할 객체(thisArg)를 인자로 지장할 수 있는 경우가 있다.
 - 이런 메서드의 thisArg 값을 지정하면 콜백 함수 내부에서 this값을 원하는 대로 변경할 수 있다.
-- 이런 형태는 여러 내부 요소에 대해 같은 동작을 반복 수행해야 하는 배열 메서드에 많이 포진돼 있으며, 같은 이유로 ES6에서 새로 등장한 Set, Map 등의 메서드에서도 일부 존재한다. 
+- 이런 형태는 여러 내부 요소에 대해 같은 동작을 반복 수행해야 하는 배열 메서드에 많이 포진돼 있으며, `같은 이유로 ES6에서 새로 등장한 Set, Map 등의 메서드에서도 일부 존재한다. 
   
 **예시) forEach메서드 - thisArg를 인자로 받는 경우**
  ```js
@@ -653,7 +653,7 @@ console.log(bindFunc.name)  // bound func
  report.add(60,85,95)
  console.log(report.sum, report.count, report.average())
  ```
- - add 메서드
+- 코드 설명
    -  arguments를 배열로 변환해서 args를 변수에 담는다
    -  배열을 순회하면서 콜백함수를 실행한다.
    -  **콜백 함수 내부에서의 this는 forEach 함수의 두 번째 인자로 전달해준 this가 바인딩 된다.**
@@ -695,41 +695,53 @@ Map.prototype.forEach(callback[, thisArg])
 - 요소를 순회하면서 콜백 함수를 반복 호출하는 내용의 일부 메서드는
 별도의 인자로 this를 받기도 한다.
 ```
-  
-## Quiz. 실행결과를 순서대로 나타내보시오
+
+
+### Quiz 1. 실행결과를 순서대로 나타내보시오
+
 ```js
 let glob;
 const obj5 = {
-    name: 'jh',
-    getName: function () {
-        function getFirstLetter() {
-            return this;
-        }
-        glob2 = this;
-        console.log(this);
-        setTimeout(() => {
-            console.log(this); 
-        });
-        console.log(getFirstLetter());
-    },
+  name: 'jh',
+  getName: function () {
+    function getFirstLetter() {
+      return this;
+    }
+    glob = this;
+    console.log('a', this);
+    setTimeout(function () {
+      console.log('b', this);
+    });
+    setTimeout(()=>{
+      console.log('c', this);
+    });
+    console.log('d', getFirstLetter());
+  },
 };
-obj5.getName(); 
-console.log(this);
-console.log(glob);
+obj5.getName();
+console.log('e', this);
+console.log('f', glob);
 ```
 
-## Quiz.
-<img width="358" alt="1" src="https://user-images.githubusercontent.com/76730867/143515266-9c2d57af-55b9-44c6-a662-a164988e3f49.png">
+- `a: obj5`,`d: window`,`e: window`,`f: obj5`,`b: window`,`c: obj5`,
+- `setTimeout` 안에 있는 콜백함수는 함수로써 호출되어, `this`는 `window`를 바라보지만, 화살표함수는 선언 당시(=실행컨텍스트 생성 당시) this를 갖지 않기 때문에 자동적으로 상위 스코프로 체이닝하여, `obj5`의 `this`를 바인딩하게 된다.
 
-- 오류가 발생한다. undefined의 property를 참고하면 undefined가 나오지 않고 Error가 나온다.
 
-<img width="362" alt="2" src="https://user-images.githubusercontent.com/76730867/143515270-3b728391-fd28-4d0e-b4df-542f89985b38.png">
+### Quiz 2
+<img width="500" alt="1" src="https://user-images.githubusercontent.com/76730867/143515266-9c2d57af-55b9-44c6-a662-a164988e3f49.png">
 
-- band undefined roto play start
-- play메서드의 this는 호출주체가 담긴다. 이는 roto이기 때문에 roto안에 name 프로퍼티는 없어서 undefined, membername 프로퍼티는 있기 때문에 'roto'가 출력된다.
+- 오류가 발생한다.
+- **new 키워드**를 붙이지 않아, 생성자 함수로 작동하지 않았기 때문이다.
+- 따라서 `undefined`의 property를 참고하면 `undefined`가 나오지 않고 Error가 나온다.
+
+### Quiz 3
+<img width="600" alt="2" src="https://user-images.githubusercontent.com/76730867/143515270-3b728391-fd28-4d0e-b4df-542f89985b38.png">
+
+- `band undefined roto play start`이 출력된다.
+- `play()`메서드의 `this`는 호출주체, `roto`가 담긴다. 
+- `roto`에는 `name` 프로퍼티는 없어서 `undefined`, `membername` 프로퍼티는 있기 때문에 `'roto'`가 출력된다.
 
 **참고**
-- Q. this는 체이닝해서 상위 스코프를 찾지 못하나?
-- A. 
-  - 체이닝해서 상위 컨텍스트의 변수를 찾을 때 내부에는 변수가 아예 없으며, 접근하고자 하면 스코프체인상 가장 가까운 변수에 접근하게 된다.
-  - 객체를 정의할 때 this시 상위 프로퍼티의 key를 찾지 못하는 이유는 실행컨텍스트가 생성되지 않아 없기 때문이며, 가장 가까운 스코프체인상의 this는 전역객체가 된 것이다.
+- Q. `this`는 체이닝해서 상위 스코프를 찾는 것이 아니였나?
+- A. `this`는 실행 컨텍스트 생성시 하나의 값으로 바인딩 된다! 
+  - 위의 예제에서 `play()`메서드 안의 `this`는 호출 주체인 `roto`가 바인딩 되었다. 따라서 `this`값 자체는 `roto`를 가리키며 `this` 값 자체가 체이닝되는 것은 **화살표함수 처럼 this를 갖지 않을 때 발생한다.**
