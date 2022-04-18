@@ -383,7 +383,9 @@ console.log(a)
 - 변수 선언과 값 할당이 동시에 이뤄진 문장은 '선언부'만을 호이스팅하고, 할당 과정은 원래 자리에 있다. 여기서 함수 선언문과 함수 표현식의 차이가 발생한다.
 
 #### 스코프
-- 스코프는 **변수의 유효범위**를 말한다. `outerEnvironmentReference`는 해당 함수가 선언된 위치의 `LexicalEnvironment`를 참조한다. 코드 상에는 어떤 변수에 접근하려고 하면 현재 컨텍스트의 `LexicalEnvironment`를 탐색해서 발견되면 그 값을 반환하고, 발견하지 못할 경우 다시 `outerEnvironmentRefrence`에 담긴 `LexicalEnvironment`를 탐색하는 과정을 거친다. 전역 컨텍스트의 `LexicalEnvironment`까지 해당 변수를 찾지 못하면 `undefined`를 반환한다.
+- 스코프는 **변수의 유효범위**를 말한다.
+- `outerEnvironmentReference`는 해당 함수가 **선언**된 위치의 `LexicalEnvironment`를 참조한다.
+-  코드 상에는 어떤 변수에 접근하려고 하면 현재 컨텍스트의 `LexicalEnvironment`를 탐색해서 발견되면 그 값을 반환하고, 발견하지 못할 경우 다시 `outerEnvironmentRefrence`에 담긴 `LexicalEnvironment`를 탐색하는 과정을 거친다. 전역 컨텍스트의 `LexicalEnvironment`까지 해당 변수를 찾지 못하면 `undefined`를 반환한다.
 
 #### 전역변수, 지역변수
 - **전역변수**는 전역 컨텍스트의 `LexicalEnvironment`에 담긴 변수를, 그밖에 함수에 의해 생성된 실행 컨텍스트의 변수들은 모두 **지역변수**이다.

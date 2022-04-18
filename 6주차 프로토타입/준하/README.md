@@ -1,76 +1,94 @@
 # 06 프로토타입
 
--   JavaScript는 프로토타입 기반 언어다.
--   클래스 기반 언어는 `상속`을 사용하지만, 프로토타입 기반 언어는 **어떤 객체를 `원형`으로 삼고 이를 복제**함으로써 `상속`과 비슷한 효과를 낸다.
+-   `JavaScript`는 프로토타입 기반 언어다. 
+-  클래스 기반 언어는 `상속`을 사용하지만, 프로토타입 기반 언어는 어떤 객체를 `원형`으로 삼고 이를 복제함으로써 `상속`과 비슷한 효과를 낸다.
+
 
 ## 1. Constructor, prototype, instance
 
+
+### 인스턴스 생성 과정
+
 ```js
-var instance = new Constructor();
+var newInstance = new Constructor();
 ```
 
-- 생성자 함수를 new 연산자와 함께 호출하면,
-- `Constructor`에서 정의된 내용을 바탕으로 새로운 인스턴스가 생성된다.
-- instance에는 `__proto__`라는 프로퍼티가 자동으로 부여된다.
-- `__proto__`는 `Constructor`의 `prototype`를 프로퍼티를 참조한다.
+1. `Constructor`를 `new` 연산자와 함께 호출한다.
+2. `Constructor`에서 정의된 내용을 바탕으로 새로운 인스턴스가 생성된다.
+3. 인스턴스에는 프로퍼티 `__proto__`가 자동으로 부여된다.
+4. `__proto__`는 `Constructor`의 `prototype`를 참조한다.
 
 ![image](https://user-images.githubusercontent.com/76730867/141883614-4a43f4d3-86c6-47f8-beb2-c8b9539093ef.png)
 
-- `prototype` 객체에는 인스턴스가 사용할 메서드를 저장한다.
-- 인스턴스는 숨겨진 프로퍼티 `__proto__`를 통해 prototype에 정의된 메서드들에 접근할 수  있다.
+- `prototype` 객체: `Constructor` 내부에 있으며, 인스턴스가 사용할 메서드를 저장하는 곳
+- `__proto__` 객체: `instance` 내부에 숨겨져 있으며, `prototype`에 정의된 메서드들을 접근할 수 있는 곳
 
 ---
 **참고) `__proto__`라는 명칭**
 - 실무에서는 `__proto__`라고 직접 쓰지 않는다.
 - `Object.getPrototypeof()`, `Object.create()`등을 이용해 접근하는 것을 권장한다.
-  - `Object.getPrototypeOf(객체)`: 객체의 프로토타입을 반환한다.
-  - `Object.create(custom_proto)`: 지정된 프로토타입을 갖는 새 객체를 만든다.
-    - `var obj = Object.create(Object.prototype)`
-    - `new Object()`와 차이는 생성자 함수를 실행하지 않고 객체를 생성한다는 점이다.
+  - `Object.getPrototypeOf(객체)`: 프로토타입을 반환
+  - `Object.create(custom_proto)`: 지정된 프로토타입을 갖는 새 객체 반환
+- `var obj = Object.create(Object.prototype)` VS  `new Object()` 
+  - 생성자 함수를 실행하지 않고 객체를 생성한다는 점이다.
 - ES5.1 명세에서는 `__proto__`가 아니라 `[[prototype]]`로 정의돼 있다.
 
 ---
 
-#### 예시1) 인스턴스는 Constructor.prototype을 참조할 수 있다.
+#### 예시1) 인스턴스에서 `Constructor.prototype` 접근하기
 
 ```js
 var Person = function (name) {
     this._name = name; 
-    // 생성자 함수의 this는
-    // 생성된 객체 인스턴스의 메서드로 호출될 때의 인스턴스를 가리킨다.
 };
 
 Person.prototype.getName = function () {
     return this._name; 
-    // 이 this는 누구의 객체로 호출될까?
 };
 ```
 
-- Person으로 생성된 인스턴스들은 `__proto__` 프로퍼티를 통해 `getName()`을 호출할 수 있다.
-
 ```js
 var suzi = new Person('suzi');
-suzi.getName(); // suzi
-suzi.__proto__.getName(); // undefined
+
+suzi.getName();
+// suzi
+
+suzi.__proto__.getName();
+// undefined
 ```
 
-- `suzi.__proto__.getName()`의 경우, getName 함수 내부에서의 **this**는  `suzi`객체가 아니라`__proto__`객체이다.
-- `suzi`객체는 `_name`프로퍼티가 있는 반면, `__proto__`객체는 `_name`프로퍼티가 없기 때문에 undefined라는 결과가 나온다.
-- 이를 통해 함수를 `메서드`로서 호출할 때는 **메서드 명 바로 앞 객체가 this가 된다**는 사실을 알 수 있다.
+<br>
 
-##### `__proto__`는 생략할 수 있다.
+##### 1. `__proto__`는 생략할 수 있다.
 
-- `__proto__`를 생략해도 `prototype`에 있는 프로퍼티에 접근할 수 있다.
-- 위의 예시에서 `__proto__`의 생략 유무의 차이는 **this가 서로 다른 객체를 바라본다**는 차이가 있다.
+- 인스턴스에 `getName`이 없다면 자동적으로 `__proto__`를 체이닝한다.
+- 따라서 인스턴스의 숨겨진 프로퍼티 `__proto__`를 굳이 명시하지 않아도 된다.
+
+```js
+1) suzi.__proto__.getName
+2) suzi.(__proto__.)getName
+```
+
+<br>
+
+##### 2. `this`가 서로 다른 객체를 바라본다.
+
+- `__proto__`의 생략 유무의 차이는 **this가 서로 다른 객체를 바라본다**는 차이가 있다.
+- 함수를 `메서드`로서 호출할 때는 **메서드 명 바로 앞 객체**가 this가 된다.
+
 
 ```js
 1) suzi.__proto__.getName
 2) suzi.getName
 ```
 
-- **결론**
-  1. 1번과 2번 모두 `prototype`에 있는 `getName` 메소드에 접근할 수 있지만, this가 바라보는 대상이 달라지게 된다.
-  2. `생성자함수.prototype`에 메서드, 프로퍼티를 정의하면, 인스턴스에서도 동일하게 접근할 수 있다.
+- `suzi`는 `_name`프로퍼티가 있다.
+- `suzi.__proto__`는 `_name`프로퍼티가 없기 때문에 `undefined`가 나온다.
+
+##### 결론
+
+- 1번, 2번 모두 `prototype`에 있는 `getName` 메소드에 접근할 수 있지만, this가 바라보는 대상이 달라지게 된다.
+- `Constructor.prototype`에 메서드, 프로퍼티를 정의하면, 인스턴스에서도 동일하게 접근할 수 있다.
 
 ![image](https://user-images.githubusercontent.com/76730867/141886399-180dd52c-9332-41a7-969f-b2a132c2c33c.png)
 
@@ -93,8 +111,10 @@ console.dir(instance);
 
 ![image](https://user-images.githubusercontent.com/76730867/141901965-88bd77e4-9142-47e1-a32e-1bcfdc989444.PNG)
 
--   옅은 색은 `{enumerable:false}`, 짙은 색은 `{enumerable:true}`
--   짙은 색이 **열거 가능**한 프로퍼티를 의미해, `for in` 등으로 **객체 프로퍼티에 접근할 수 있음**를 나타낸다.
+- 옅은 색: `{enumerable:false}`
+- 짙은 색: `{enumerable:true}`
+  - **열거 가능**한 프로퍼티
+  - `for in` 등으로 **객체 프로퍼티에 접근할 수 있음**
 ---
 
 ### 예시2) Constructor의 다른 프로퍼티
@@ -109,11 +129,11 @@ arr.isArray(); // X: TypeError: arr.isArray is not a function
 Array.isArray(arr); // O
 ```
 
-- `Array.prototype` 내부에 있지 않은 `from()`과 같은 `스태틱 메서드`는, 인스턴스가 직접 호출할 수 없고, 생성자 함수(Array)에서 직접 접근해야 실행할 수 있다.
+- **스태틱 메서드**: `Array.prototype` 내부에 있지 않은 변수는 인스턴스가 직접 호출할 수 없고, `생성자 함수(Array)`에서 직접 접근해야 실행할 수 있다.
 
 ---
 
-## 2. Constructor 프로퍼티
+## 2. `.constructor` 프로퍼티
 
 ### 1) `Constructor.prototype.constructor`
 
@@ -121,7 +141,7 @@ Array.isArray(arr); // O
 var arr = [1, 2];
 
 Array.prototype.constructor === Array;
-arr.__proto__.consturctor === Array;
+arr.__proto__.constructor === Array;
 arr.constructor === Array;
 ```
 -   prototype 객체 내부에 `constructor` 프로퍼티가 있다.
@@ -136,8 +156,8 @@ var arr2 = new arr.constructor(3, 4);
 
 ### 2) `constructor` 프로퍼티는 변경할 수 있다.
 
--  constructor는 `읽기 전용 속성`이 부여된 예외적인 경우를 제외하고는 값을 바꿀 수 있다.
--  기본형 리터럴 변수(number, string, boolean)는 `읽기 전용 속성` 되어 있다.
+-  `constructor`는 `읽기 전용 속성`이 부여된 예외적인 경우를 제외하고는 값을 바꿀 수 있다.
+-  기본형 리터럴 변수 `number`, `string`, `boolean`는 `읽기 전용 속성` 되어 있다.
 
 ```js
 var newConstructor = function () {
@@ -252,7 +272,7 @@ var arr = [1, 2];
 </p>
 
 
-**예시) 프로토타입 체이닝을 이용하여, 배열에서 `배열 메서드`와 `객체 메서드` 호출하기**
+**예시) 프로토타입 체이닝**을 이용하여, 배열에서 `배열 메서드`와 **`객체 메서드`** 호출하기
 
 ```js
 var arr =[1,2]
@@ -356,3 +376,10 @@ console.log(g) // Grade(2) [100, 90]
   -   이런식으로 **proto**안에 다시 **proto**를 찾아가는 과정을 프로토타입 체이닝이라고 한다. 이를 통해 각 프로토타입 메서드를 자신의 것처럼 호출할 수 있다.
   -   이때 접근 방식은 자신으로부터 가장 가까운 대상부터 점차 먼 대상으로 나아가며, 원하는 값을 찾으면 검색을 중단한다.
   -   `Object.prototype`에는 모든 데이터 타입에서 사용할 수 있는 범용적인 메서드만이 존재하며, 객체 전용 메서드는 여느 데이터 타입과 달리 Object 생성자 함수에 스태틱하게 담겨있다.
+
+```
+함수는 statements처럼 보이지만 객체다!
+function Perstion() {}
+var Person = new Function() 는 똑같은 거다 
+객체이기 때문에 property를 가질 수 있다.
+```
