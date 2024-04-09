@@ -12,7 +12,7 @@
 
 
 ### 2-1) 호출 시점
-- 콜백 함수를 넘겨받은 함수는 콜백 함수를 필요에 따라 **적절한 시점**에 실행한다.
+- 콜백 함수를 넘겨받은 함수는 필요에 따라 **적절한 시점**에 실행한다.
 
 #### sctInterval의 구조
 
@@ -21,15 +21,15 @@ var intervalID = scope.setInterval(func, delay[, param1, param2,...])
 ```
 - `scope`: `Window` 객체 || `Worker`의 인스턴스
 - `setInterval()`: 고유한 ID값 반환
-- `clearInterval(setIntervalID)`: `setInterval` 멈추기
+- `clearInterval(setIntervalID)`
 
 ```js
 var count = 0
-var cbFunc = function() {
+var callback = function() {
     console.log(count)
     if(++count > 4) clearInterval(timer)
 }
-var timer = setInterval(cbFunc,300)
+var timer = setInterval(callback, 300)
 ```
 
 
